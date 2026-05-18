@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, Cell } from 'recharts';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import { Icon } from 'leaflet';
-import { CloudRain, ThermometerSun, AlertOctagon, Activity, MapPin, X, ArrowRight, Battery, Waves, CloudLightning, Info } from 'lucide-react';
+import { CloudRain, ThermometerSun, AlertOctagon, Activity, MapPin, X, ArrowRight, Battery, Waves, CloudLightning, Info, Sun, Moon } from 'lucide-react';
 import { ServicioBdLocal } from '../servicios/ServicioBdLocal';
 import { ServicioClima } from '../servicios/ServicioClima';
 import { SensorIoT, DatosClima, Reporte } from '../tipos';
@@ -27,6 +27,21 @@ export default function PanelIoT() {
   const [sensorSeleccionado, setSensorSeleccionado] = useState<SensorIoT | null>(null);
   const sensorSeleccionadoRef = React.useRef<SensorIoT | null>(null);
   const [modoTormenta, setModoTormenta] = useState(false);
+  const [tema, setTema] = useState<'light' | 'dark'>(() => {
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  });
+
+  const toggleTema = () => {
+    const nuevoTema = tema === 'dark' ? 'light' : 'dark';
+    setTema(nuevoTema);
+    if (nuevoTema === 'dark') {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   React.useEffect(() => {
     sensorSeleccionadoRef.current = sensorSeleccionado;
@@ -107,6 +122,18 @@ export default function PanelIoT() {
            >
              <CloudLightning className={`h-5 w-5 ${modoTormenta ? 'animate-pulse' : 'text-slate-500 dark:text-slate-400'}`} />
              {modoTormenta ? 'ALERTA METEOROLÓGICA ACTIVA' : 'MODO TORMENTA'}
+           </button>
+
+           <button 
+            onClick={toggleTema}
+            className="flex items-center justify-center p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer"
+            title={tema === 'dark' ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
+           >
+             {tema === 'dark' ? (
+               <Sun className="h-5 w-5 text-amber-500" />
+             ) : (
+               <Moon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+             )}
            </button>
 
            <div className="flex bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-2 shadow-sm">
@@ -192,7 +219,7 @@ export default function PanelIoT() {
              </div>
              <div className="flex-1 w-full bg-slate-100 dark:bg-slate-900 min-h-[400px]">
                 <MapContainer center={[2.4418, -76.6063]} zoom={14} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer url={urlCapaMapa()} attribution='&copy; CARTO' />
+                  <TileLayer key={tema} url={urlCapaMapa()} attribution='&copy; CARTO' />
                   {sensores.map(sensor => (
                     <Circle 
                       key={sensor.id}
