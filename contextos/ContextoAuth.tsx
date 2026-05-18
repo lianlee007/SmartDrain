@@ -1,35 +1,46 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Usuario } from '../tipos';
+import { ServicioAuth } from '../servicios/ServicioAuth';
 
 interface ContextoAuthValor {
   usuario: Usuario | null;
-  autenticar: (nombre: string, correo: string) => void;
+  cargando: boolean;
+  registrar: (nombre: string, correo: string, password: string, recordar: boolean) => void;
+  iniciarSesion: (correo: string, password: string, recordar: boolean) => void;
   cerrarSesion: () => void;
 }
 
 const ContextoAuth = createContext<ContextoAuthValor | undefined>(undefined);
 
-export const ProveedorAuth: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const ProveedorAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    const usr = localStorage.getItem('smartdrain_usuario');
-    if(usr) setUsuario(JSON.parse(usr));
+    const sesion = ServicioAuth.obtenerSesionActiva();
+    setUsuario(sesion);
+    setCargando(false);
   }, []);
 
-  const autenticar = (nombre: string, correo: string) => {
-    const nuevoUsuario: Usuario = { id: Math.random().toString(36).substr(2, 9), nombre, correo };
-    setUsuario(nuevoUsuario);
-    localStorage.setItem('smartdrain_usuario', JSON.stringify(nuevoUsuario));
+  const registrar = (nombre: string, correo: string, password: string, recordar: boolean) => {
+    const nuevo = ServicioAuth.registrar(nombre, correo, password);
+    ServicioAuth.guardarSesion(nuevo, recordar);
+    setUsuario(nuevo);
+  };
+
+  const iniciarSesion = (correo: string, password: string, recordar: boolean) => {
+    const activo = ServicioAuth.iniciarSesion(correo, password);
+    ServicioAuth.guardarSesion(activo, recordar);
+    setUsuario(activo);
   };
 
   const cerrarSesion = () => {
+    ServicioAuth.cerrarSesion();
     setUsuario(null);
-    localStorage.removeItem('smartdrain_usuario');
   };
 
   return (
-    <ContextoAuth.Provider value={{ usuario, autenticar, cerrarSesion }}>
+    <ContextoAuth.Provider value={{ usuario, cargando, registrar, iniciarSesion, cerrarSesion }}>
       {children}
     </ContextoAuth.Provider>
   );
@@ -37,6 +48,6 @@ export const ProveedorAuth: React.FC<{children: React.ReactNode}> = ({ children 
 
 export const usarAuth = () => {
   const context = useContext(ContextoAuth);
-  if(!context) throw new Error('usarAuth debe usarse dentro de un ProveedorAuth');
+  if (!context) throw new Error('usarAuth debe usarse dentro de un ProveedorAuth');
   return context;
 };

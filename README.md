@@ -64,10 +64,10 @@ Obtén tu API key en [console.groq.com](https://console.groq.com). Sin esta clav
 SmartDrain/
 ├── paginas/          # Vistas (Inicio, Acceso, Reporte, Panel)
 ├── componentes/      # UI reutilizable
-├── contextos/        # Auth y tema
+├── contextos/        # Auth
 ├── servicios/        # API clima, Groq, persistencia
 ├── tipos/            # Interfaces TypeScript
-└── utilidades/       # Helpers de tema y mapas
+└── utilidades/       # Helpers de mapas y gráficas
 ```
 
 ## Tecnologías

@@ -34,14 +34,17 @@ export const ServicioBdLocal = {
     const reportes = ServicioBdLocal.obtenerReportes();
     const nuevoReporte: Reporte = {
       ...reporte,
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).slice(2, 11),
       fecha: new Date().toISOString(),
-      estado: 'Pendiente'
+      estado: 'Pendiente',
     };
     reportes.push(nuevoReporte);
     localStorage.setItem(CLAVE_REPORTES, JSON.stringify(reportes));
     return nuevoReporte;
   },
+
+  obtenerReportesPorAutor: (autorId: string): Reporte[] =>
+    ServicioBdLocal.obtenerReportes().filter((r) => r.autorId === autorId),
 
   obtenerSensoresIoT: (modoTormenta: boolean = false): Promise<SensorIoT[]> => {
     return new Promise((resolve) => {

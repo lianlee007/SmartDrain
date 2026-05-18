@@ -13,11 +13,13 @@ export interface RegistroMantenimiento {
 export interface Reporte {
   id: string;
   descripcion: string;
+  categoria?: string;
   latitud: number;
   longitud: number;
   severidad: 'Leve' | 'Moderado' | 'Grave';
   fecha: string;
   autorId: string;
+  autorNombre?: string;
   estado: 'Pendiente' | 'Revisado' | 'Solucionado';
   fotoUrl?: string;
 }

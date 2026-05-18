@@ -8,7 +8,6 @@ import { ServicioClima } from '../servicios/ServicioClima';
 import { SensorIoT, DatosClima, Reporte } from '../tipos';
 import { motion, AnimatePresence } from 'motion/react';
 import { AnalisisIA } from '../componentes/AnalisisIA';
-import { usarTema } from '../contextos/ContextoTema';
 import { urlCapaMapa, estiloTooltipGrafica, cursorGrafica } from '../utilidades/estilosTema';
 
 const alertIcon = new Icon({
@@ -21,14 +20,17 @@ const alertIcon = new Icon({
 });
 
 export default function PanelIoT() {
-  const { tema } = usarTema();
-  const esOscuro = tema === 'oscuro';
   const [sensores, setSensores] = useState<SensorIoT[]>([]);
   const [clima, setClima] = useState<DatosClima | null>(null);
   const [reportes, setReportes] = useState<Reporte[]>([]);
   const [cargando, setCargando] = useState(true);
   const [sensorSeleccionado, setSensorSeleccionado] = useState<SensorIoT | null>(null);
+  const sensorSeleccionadoRef = React.useRef<SensorIoT | null>(null);
   const [modoTormenta, setModoTormenta] = useState(false);
+
+  React.useEffect(() => {
+    sensorSeleccionadoRef.current = sensorSeleccionado;
+  }, [sensorSeleccionado]);
 
   const generarHistorial = () => [
     { hora: '08:00', nivel: Math.floor(Math.random() * 40) + 10 },
@@ -63,14 +65,15 @@ export default function PanelIoT() {
     const interval = setInterval(() => {
       ServicioBdLocal.obtenerSensoresIoT(modoTormenta).then(newSens => {
         setSensores(newSens);
-        if (sensorSeleccionado) {
-          const updated = newSens.find(s => s.id === sensorSeleccionado.id);
+        const sel = sensorSeleccionadoRef.current;
+        if (sel) {
+          const updated = newSens.find(s => s.id === sel.id);
           if (updated) setSensorSeleccionado(updated);
         }
       });
     }, 5000);
     return () => clearInterval(interval);
-  }, [sensorSeleccionado, modoTormenta]);
+  }, [modoTormenta]);
 
   useEffect(() => {
     if (sensorSeleccionado) setDataHistorial(generarHistorial());
@@ -80,7 +83,7 @@ export default function PanelIoT() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-6">
         <Activity className="h-12 w-12 text-primary-500 animate-spin" />
-        <p className="text-xs font-bold uppercase tracking-[0.5em] text-gray-500">Iniciando Centro de Despacho</p>
+        <p className="text-xs font-bold uppercase tracking-[0.5em] text-slate-600 dark:text-slate-400">Iniciando Centro de Despacho</p>
       </div>
     );
   }
@@ -100,24 +103,24 @@ export default function PanelIoT() {
         <div className="flex flex-wrap items-center gap-4">
            <button 
             onClick={() => setModoTormenta(!modoTormenta)}
-            className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg ${modoTormenta ? 'bg-red-600 text-white shadow-red-600/30' : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-gray-700 dark:text-slate-300'}`}
+            className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg ${modoTormenta ? 'bg-red-600 text-white shadow-red-600/30' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 shadow-sm'}`}
            >
-             <CloudLightning className={`h-5 w-5 ${modoTormenta ? 'animate-pulse' : 'text-gray-400'}`} />
+             <CloudLightning className={`h-5 w-5 ${modoTormenta ? 'animate-pulse' : 'text-slate-500 dark:text-slate-400'}`} />
              {modoTormenta ? 'ALERTA METEOROLÓGICA ACTIVA' : 'MODO TORMENTA'}
            </button>
 
-           <div className="flex bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-2 shadow-sm">
-             <div className="px-4 py-1 flex items-center gap-3 border-r border-gray-100 dark:border-slate-800">
+           <div className="flex bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-2 shadow-sm">
+             <div className="px-4 py-1 flex items-center gap-3 border-r border-slate-200 dark:border-slate-800">
                <ThermometerSun className="text-orange-500 h-5 w-5" />
                <div className="leading-none">
-                  <p className="text-[10px] font-black text-gray-400 uppercase">Temp</p>
+                  <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase">Temp</p>
                   <p className="font-bold text-gray-900 dark:text-white text-lg">{clima?.temperatura}°C</p>
                </div>
              </div>
              <div className="px-4 py-1 flex items-center gap-3">
                <CloudRain className="text-blue-500 h-5 w-5" />
                <div className="leading-none">
-                  <p className="text-[10px] font-black text-gray-400 uppercase">Precip</p>
+                  <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase">Precip</p>
                   <p className="font-bold text-gray-900 dark:text-white text-lg">{modoTormenta ? '92' : clima?.lluvia}mm</p>
                </div>
              </div>
@@ -144,7 +147,7 @@ export default function PanelIoT() {
                      <span className="text-xs font-bold text-gray-700 dark:text-slate-300">Capacidad Total</span>
                      <span className="text-xs font-mono text-primary-500">78%</span>
                    </div>
-                   <div className="h-1.5 w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                   <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div className="h-full bg-primary-500 rounded-full" style={{ width: '78%' }} />
                    </div>
                  </div>
@@ -153,7 +156,7 @@ export default function PanelIoT() {
                      <span className="text-xs font-bold text-gray-700 dark:text-slate-300">Flujo Promedio</span>
                      <span className="text-xs font-mono text-blue-500">1.4 m³/s</span>
                    </div>
-                   <div className="h-1.5 w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                   <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div className="h-full bg-blue-500 rounded-full" style={{ width: '45%' }} />
                    </div>
                  </div>
@@ -166,13 +169,14 @@ export default function PanelIoT() {
                  {reportes.slice().reverse().map(r => (
                    <div key={r.id} className="p-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col gap-1">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-primary-600 dark:text-primary-400">NUEVO REPORTE</span>
-                        <span className="text-[9px] text-gray-400">{new Date(r.fecha).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                        <span className="text-[10px] font-bold text-primary-400">{r.categoria || 'REPORTE'}</span>
+                        <span className="text-[9px] text-slate-500 dark:text-slate-400">{new Date(r.fecha).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                       </div>
-                      <p className="text-xs font-medium text-gray-700 dark:text-slate-300 line-clamp-2">"{r.descripcion}"</p>
+                      {r.fotoUrl && <img src={r.fotoUrl} alt="" className="w-full h-16 object-cover rounded-lg" />}
+                      <p className="text-xs font-medium text-slate-300 line-clamp-2">{r.descripcion}</p>
                    </div>
                  ))}
-                 {reportes.length === 0 && <p className="text-xs text-gray-400 italic py-8 text-center uppercase tracking-widest">Sin actividad reciente</p>}
+                 {reportes.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400 py-8 text-center uppercase tracking-widest">Sin actividad reciente</p>}
               </div>
            </div>
         </div>
@@ -188,7 +192,7 @@ export default function PanelIoT() {
              </div>
              <div className="flex-1 w-full bg-slate-100 dark:bg-slate-900 min-h-[400px]">
                 <MapContainer center={[2.4418, -76.6063]} zoom={14} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer url={urlCapaMapa(esOscuro)} attribution='&copy; CARTO' />
+                  <TileLayer url={urlCapaMapa()} attribution='&copy; CARTO' />
                   {sensores.map(sensor => (
                     <Circle 
                       key={sensor.id}
@@ -204,15 +208,15 @@ export default function PanelIoT() {
                     >
                       <Popup>
                         <div className="p-2 min-w-[200px]">
-                           <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">Telemetría Nodo</p>
-                           <p className="font-heading font-bold text-gray-900 border-b border-gray-100 pb-2 mb-2">{sensor.ubicacion}</p>
+                           <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-1">Telemetría Nodo</p>
+                           <p className="font-heading font-bold text-slate-900 border-b border-slate-200 pb-2 mb-2">{sensor.ubicacion}</p>
                            <div className="grid grid-cols-2 gap-4">
                               <div>
-                                 <span className="text-[9px] font-bold text-gray-500 uppercase block">Nivel</span>
+                                 <span className="text-[9px] font-bold text-slate-600 uppercase block">Nivel</span>
                                  <span className="text-xl font-black">{sensor.nivelAgua}%</span>
                               </div>
                               <div>
-                                 <span className="text-[9px] font-bold text-gray-500 uppercase block">Flujo</span>
+                                 <span className="text-[9px] font-bold text-slate-600 uppercase block">Flujo</span>
                                  <span className="text-xl font-black">{sensor.flujo} m/s</span>
                               </div>
                            </div>
@@ -223,9 +227,14 @@ export default function PanelIoT() {
                   {reportes.map(rep => (
                     <Marker key={rep.id} position={[rep.latitud, rep.longitud]} icon={alertIcon}>
                       <Popup>
-                        <div className="p-1">
-                          <strong className="text-red-600 flex items-center gap-1 text-xs"><AlertOctagon className="h-3 w-3"/> Alerta Ciudadana</strong>
-                          <p className="text-xs mt-1 italic">"{rep.descripcion}"</p>
+                        <div className="p-2 min-w-[180px]">
+                          <strong className="text-red-600 flex items-center gap-1 text-xs">
+                            <AlertOctagon className="h-3 w-3"/> {rep.categoria || 'Alerta Ciudadana'}
+                          </strong>
+                          {rep.fotoUrl && (
+                            <img src={rep.fotoUrl} alt="" className="w-full h-24 object-cover rounded-lg mt-2" />
+                          )}
+                          <p className="text-xs mt-2 text-slate-700">{rep.descripcion}</p>
                         </div>
                       </Popup>
                     </Marker>
@@ -246,8 +255,8 @@ export default function PanelIoT() {
                         <XAxis dataKey="ubicacion" hide />
                         <YAxis hide />
                         <Tooltip 
-                          contentStyle={estiloTooltipGrafica(esOscuro)}
-                          cursor={cursorGrafica(esOscuro)}
+                          contentStyle={estiloTooltipGrafica()}
+                          cursor={cursorGrafica()}
                         />
                         <Bar dataKey="nivelAgua" radius={[6,6,6,6]}>
                           {sensores.map((entry, index) => (
@@ -269,7 +278,7 @@ export default function PanelIoT() {
                         <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{sensorSeleccionado.id}</p>
                         <p className="font-heading font-bold text-gray-900 dark:text-white text-lg mt-1">{sensorSeleccionado.ubicacion}</p>
                       </div>
-                      <button onClick={() => setSensorSeleccionado(null)}><X className="h-4 w-4 text-gray-400" /></button>
+                      <button onClick={() => setSensorSeleccionado(null)}><X className="h-4 w-4 text-slate-500 dark:text-slate-400" /></button>
                    </div>
                    <div className="flex-1">
                       <ResponsiveContainer width="100%" height="100%">
@@ -297,7 +306,7 @@ export default function PanelIoT() {
                  {sensores.map(s => (
                    <button 
                     key={s.id} onClick={() => setSensorSeleccionado(s)}
-                    className={`w-full p-4 rounded-2xl border transition-all text-left flex items-center justify-between group ${sensorSeleccionado?.id === s.id ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-white dark:bg-slate-900 border-gray-100 dark:border-slate-800'}`}
+                    className={`w-full p-4 rounded-2xl border transition-all text-left flex items-center justify-between group ${sensorSeleccionado?.id === s.id ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'}`}
                    >
                      <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black ${s.estado === 'Critico' ? 'bg-red-500 text-white' : s.estado === 'Alerta' ? 'bg-orange-500 text-white' : 'bg-emerald-500 text-white'}`}>
@@ -323,18 +332,18 @@ export default function PanelIoT() {
                  Zonas de Despacho Inmediato
               </h3>
               {sensoresCriticos.length === 0 ? (
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center py-4">Sin incidentes graves</p>
+                <p className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest text-center py-4">Sin incidentes graves</p>
               ) : (
                 <div className="space-y-3">
                   {sensoresCriticos.map(s => (
-                    <div key={s.id} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
+                    <div key={s.id} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                        <div className="flex justify-between mb-2">
                           <span className="text-[11px] font-black text-gray-800 dark:text-slate-200">{s.ubicacion}</span>
                           <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${s.estado === 'Critico' ? 'bg-red-500 text-white' : 'bg-orange-500 text-white'}`}>{s.estado}</span>
                        </div>
                        <div className="flex items-center gap-3">
                           <Waves className={`h-4 w-4 ${s.estado === 'Critico' ? 'text-red-500' : 'text-orange-500'}`} />
-                          <div className="flex-1 bg-gray-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden">
+                          <div className="flex-1 bg-slate-200 dark:bg-slate-800 h-1 rounded-full overflow-hidden">
                              <div className={`h-full ${s.estado === 'Critico' ? 'bg-red-500' : 'bg-orange-500'}`} style={{ width: `${s.nivelAgua}%` }} />
                           </div>
                        </div>
