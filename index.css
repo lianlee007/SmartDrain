@@ -9,13 +9,13 @@
   --font-heading: "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-primary-50: #ecfdf5;
-  --color-primary-100: #d1fae5;
-  --color-primary-400: #34d399;
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
-  --color-primary-900: #064e3b;
+  --color-primary-50: var(--primary-50);
+  --color-primary-100: var(--primary-100);
+  --color-primary-400: var(--primary-400);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+  --color-primary-700: var(--primary-700);
+  --color-primary-900: var(--primary-900);
 }
 
 @layer base {
@@ -40,8 +40,17 @@
     --chart-tooltip-bg: rgba(15, 23, 42, 0.95);
     --chart-tooltip-text: #f8fafc;
     --chart-tooltip-border: #334155;
-    --page-gradient-1: rgba(16, 185, 129, 0.05);
     --page-gradient-2: rgba(59, 130, 246, 0.05);
+
+    /* Default Emerald Theme */
+    --primary-50: #ecfdf5;
+    --primary-100: #d1fae5;
+    --primary-400: #34d399;
+    --primary-500: #10b981;
+    --primary-600: #059669;
+    --primary-700: #047857;
+    --primary-900: #064e3b;
+    --page-gradient-1: rgba(16, 185, 129, 0.05);
   }
 
   :root:not(.dark) {
@@ -65,8 +74,62 @@
     --chart-tooltip-bg: rgba(255, 255, 255, 0.95);
     --chart-tooltip-text: #0f172a;
     --chart-tooltip-border: #cbd5e1;
-    --page-gradient-1: rgba(16, 185, 129, 0.02);
     --page-gradient-2: rgba(59, 130, 246, 0.02);
+
+    /* Default Emerald Theme Light */
+    --primary-50: #ecfdf5;
+    --primary-100: #d1fae5;
+    --primary-400: #34d399;
+    --primary-500: #10b981;
+    --primary-600: #059669;
+    --primary-700: #047857;
+    --primary-900: #064e3b;
+    --page-gradient-1: rgba(16, 185, 129, 0.02);
+  }
+
+  /* Ocean Breeze */
+  :root[data-color="ocean"] {
+    --primary-50: #f0f9ff;
+    --primary-100: #e0f2fe;
+    --primary-400: #38bdf8;
+    --primary-500: #0ea5e9;
+    --primary-600: #0284c7;
+    --primary-700: #0369a1;
+    --primary-900: #0c4a6e;
+    --page-gradient-1: rgba(14, 165, 233, 0.05);
+  }
+  :root[data-color="ocean"]:not(.dark) {
+    --page-gradient-1: rgba(14, 165, 233, 0.02);
+  }
+
+  /* Sunset Amber */
+  :root[data-color="sunset"] {
+    --primary-50: #fff7ed;
+    --primary-100: #ffedd5;
+    --primary-400: #fb923c;
+    --primary-500: #f97316;
+    --primary-600: #ea580c;
+    --primary-700: #c2410c;
+    --primary-900: #7c2d12;
+    --page-gradient-1: rgba(249, 115, 22, 0.05);
+  }
+  :root[data-color="sunset"]:not(.dark) {
+    --page-gradient-1: rgba(249, 115, 22, 0.02);
+  }
+
+  /* Royal Amethyst */
+  :root[data-color="amethyst"] {
+    --primary-50: #faf5ff;
+    --primary-100: #f3e8ff;
+    --primary-400: #c084fc;
+    --primary-500: #a855f7;
+    --primary-600: #9333ea;
+    --primary-700: #7e22ce;
+    --primary-900: #581c87;
+    --page-gradient-1: rgba(168, 85, 247, 0.05);
+  }
+  :root[data-color="amethyst"]:not(.dark) {
+    --page-gradient-1: rgba(168, 85, 247, 0.02);
   }
 }
 

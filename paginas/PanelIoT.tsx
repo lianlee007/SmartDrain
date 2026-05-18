@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, Cell } from 'recharts';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import { Icon } from 'leaflet';
-import { CloudRain, ThermometerSun, AlertOctagon, Activity, MapPin, X, ArrowRight, Battery, Waves, CloudLightning, Info, Sun, Moon } from 'lucide-react';
+import { CloudRain, ThermometerSun, AlertOctagon, Activity, MapPin, X, ArrowRight, Battery, Waves, CloudLightning, Info, Sun, Moon, Palette } from 'lucide-react';
 import { ServicioBdLocal } from '../servicios/ServicioBdLocal';
 import { ServicioClima } from '../servicios/ServicioClima';
 import { SensorIoT, DatosClima, Reporte } from '../tipos';
@@ -30,6 +30,9 @@ export default function PanelIoT() {
   const [tema, setTema] = useState<'light' | 'dark'>(() => {
     return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
   });
+  const [color, setColor] = useState<'emerald' | 'ocean' | 'sunset' | 'amethyst'>(() => {
+    return (localStorage.getItem('color-theme') as any) || 'emerald';
+  });
 
   const toggleTema = () => {
     const nuevoTema = tema === 'dark' ? 'light' : 'dark';
@@ -42,6 +45,27 @@ export default function PanelIoT() {
       localStorage.setItem('theme', 'light');
     }
   };
+
+  const cycleColor = () => {
+    const colors: ('emerald' | 'ocean' | 'sunset' | 'amethyst')[] = ['emerald', 'ocean', 'sunset', 'amethyst'];
+    const currentIndex = colors.indexOf(color);
+    const nextColor = colors[(currentIndex + 1) % colors.length];
+    setColor(nextColor);
+    if (nextColor === 'emerald') {
+      document.documentElement.removeAttribute('data-color');
+      localStorage.setItem('color-theme', 'emerald');
+    } else {
+      document.documentElement.setAttribute('data-color', nextColor);
+      localStorage.setItem('color-theme', nextColor);
+    }
+  };
+
+  React.useEffect(() => {
+    const storedColor = localStorage.getItem('color-theme');
+    if (storedColor && storedColor !== 'emerald') {
+      document.documentElement.setAttribute('data-color', storedColor);
+    }
+  }, []);
 
   React.useEffect(() => {
     sensorSeleccionadoRef.current = sensorSeleccionado;
@@ -134,6 +158,25 @@ export default function PanelIoT() {
              ) : (
                <Moon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
              )}
+           </button>
+
+           <button 
+            onClick={cycleColor}
+            className="flex items-center justify-center p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer relative"
+            title="Cambiar paleta de colores"
+           >
+             <Palette className={`h-5 w-5 ${
+               color === 'ocean' ? 'text-sky-500' :
+               color === 'sunset' ? 'text-orange-500' :
+               color === 'amethyst' ? 'text-purple-500' :
+               'text-emerald-500'
+             }`} />
+             <span className={`absolute top-1 right-1 w-2.5 h-2.5 rounded-full border border-white dark:border-slate-950 ${
+               color === 'ocean' ? 'bg-sky-500' :
+               color === 'sunset' ? 'bg-orange-500' :
+               color === 'amethyst' ? 'bg-purple-500' :
+               'bg-emerald-500'
+             }`} />
            </button>
 
            <div className="flex bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-2 shadow-sm">
@@ -273,7 +316,7 @@ export default function PanelIoT() {
            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="card-premium rounded-3xl p-6 h-[300px] flex flex-col">
                 <h3 className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-emerald-500" />
+                    <Activity className="h-4 w-4 text-primary-500" />
                     Comparativa de Caudal
                 </h3>
                 <div className="flex-1">
@@ -298,11 +341,11 @@ export default function PanelIoT() {
               {sensorSeleccionado && (
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                  className="card-premium rounded-3xl p-6 h-[300px] border-l-4 border-emerald-500 flex flex-col"
+                  className="card-premium rounded-3xl p-6 h-[300px] border-l-4 border-primary-500 flex flex-col"
                 >
                    <div className="flex justify-between mb-4">
                       <div className="leading-none">
-                        <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{sensorSeleccionado.id}</p>
+                        <p className="text-[10px] font-black text-primary-500 uppercase tracking-widest">{sensorSeleccionado.id}</p>
                         <p className="font-heading font-bold text-gray-900 dark:text-white text-lg mt-1">{sensorSeleccionado.ubicacion}</p>
                       </div>
                       <button onClick={() => setSensorSeleccionado(null)}><X className="h-4 w-4 text-slate-500 dark:text-slate-400" /></button>
@@ -312,11 +355,11 @@ export default function PanelIoT() {
                         <AreaChart data={dataHistorial}>
                            <defs>
                              <linearGradient id="g-wave" x1="0" y1="0" x2="0" y2="1">
-                               <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                               <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                               <stop offset="5%" stopColor="var(--primary-500)" stopOpacity={0.2} />
+                               <stop offset="95%" stopColor="var(--primary-500)" stopOpacity={0} />
                              </linearGradient>
                            </defs>
-                           <Area type="monotone" dataKey="nivel" stroke="#10b981" strokeWidth={3} fill="url(#g-wave)" />
+                           <Area type="monotone" dataKey="nivel" stroke="var(--primary-500)" strokeWidth={3} fill="url(#g-wave)" />
                         </AreaChart>
                       </ResponsiveContainer>
                    </div>
@@ -333,10 +376,10 @@ export default function PanelIoT() {
                  {sensores.map(s => (
                    <button 
                     key={s.id} onClick={() => setSensorSeleccionado(s)}
-                    className={`w-full p-4 rounded-2xl border transition-all text-left flex items-center justify-between group ${sensorSeleccionado?.id === s.id ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'}`}
+                    className={`w-full p-4 rounded-2xl border transition-all text-left flex items-center justify-between group ${sensorSeleccionado?.id === s.id ? 'bg-primary-500/10 border-primary-500/30' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'}`}
                    >
                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black ${s.estado === 'Critico' ? 'bg-red-500 text-white' : s.estado === 'Alerta' ? 'bg-orange-500 text-white' : 'bg-emerald-500 text-white'}`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black ${s.estado === 'Critico' ? 'bg-red-500 text-white' : s.estado === 'Alerta' ? 'bg-orange-500 text-white' : 'bg-primary-500 text-white'}`}>
                            {s.nivelAgua}%
                         </div>
                         <div>
@@ -347,7 +390,7 @@ export default function PanelIoT() {
                            </div>
                         </div>
                      </div>
-                     <ArrowRight className={`h-4 w-4 text-emerald-500 transition-all ${sensorSeleccionado?.id === s.id ? 'translate-x-0' : '-translate-x-2 opacity-0'}`} />
+                     <ArrowRight className={`h-4 w-4 text-primary-500 transition-all ${sensorSeleccionado?.id === s.id ? 'translate-x-0' : '-translate-x-2 opacity-0'}`} />
                    </button>
                  ))}
               </div>
