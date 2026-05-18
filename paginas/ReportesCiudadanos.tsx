@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Camera, FilePlus, AlertTriangle, Clock, User } from 'lucide-react';
+import { MapPin, Camera, FilePlus, AlertTriangle, Clock, User, BarChart3 } from 'lucide-react';
 import { ServicioBdLocal } from '../servicios/ServicioBdLocal';
 import { Reporte } from '../tipos';
 import { usarAuth } from '../contextos/ContextoAuth';
@@ -14,6 +14,47 @@ const colorSeveridad: Record<Reporte['severidad'], string> = {
 export default function ReportesCiudadanos() {
   const { usuario } = usarAuth();
   const [reportes, setReportes] = useState<Reporte[]>([]);
+  const [mostrarResumen, setMostrarResumen] = useState(false);
+
+  const resumenReportes = useMemo(() => {
+    const total = reportes.length;
+    const conFoto = reportes.filter((r) => r.fotoUrl).length;
+    const severidades = reportes.reduce(
+      (acc, reporte) => {
+        acc[reporte.severidad] = (acc[reporte.severidad] ?? 0) + 1;
+        return acc;
+      },
+      {
+        Leve: 0,
+        Moderado: 0,
+        Grave: 0,
+      } as Record<Reporte['severidad'], number>
+    );
+    const estados = reportes.reduce(
+      (acc, reporte) => {
+        acc[reporte.estado] = (acc[reporte.estado] ?? 0) + 1;
+        return acc;
+      },
+      {
+        Pendiente: 0,
+        Revisado: 0,
+        Solucionado: 0,
+      } as Record<Reporte['estado'], number>
+    );
+
+    return {
+      total,
+      conFoto,
+      severidades,
+      estados,
+      ultimoReporte: reportes[0]?.fecha
+        ? new Date(reportes[0].fecha).toLocaleString('es-CO', {
+            dateStyle: 'short',
+            timeStyle: 'short',
+          })
+        : 'Sin reportes',
+    };
+  }, [reportes]);
 
   useEffect(() => {
     setReportes(ServicioBdLocal.obtenerReportes().slice().reverse());
@@ -33,14 +74,72 @@ export default function ReportesCiudadanos() {
             Galería de incidentes reportados por la comunidad con foto y ubicación georreferenciada.
           </p>
         </div>
-        <Link
-          to="/reportar"
-          className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all"
-        >
-          <FilePlus className="h-4 w-4" />
-          Nuevo reporte
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setMostrarResumen((prev) => !prev)}
+            className="inline-flex items-center gap-2 border border-slate-700/50 bg-slate-900 hover:bg-slate-800 text-slate-200 px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all"
+          >
+            <BarChart3 className="h-4 w-4" />
+            {mostrarResumen ? 'Ocultar resumen' : 'Ver resumen'}
+          </button>
+          <Link
+            to="/reportar"
+            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all"
+          >
+            <FilePlus className="h-4 w-4" />
+            Nuevo reporte
+          </Link>
+        </div>
       </div>
+
+      {mostrarResumen && (
+        <section className="mb-8 rounded-3xl border border-slate-700/50 bg-slate-900/60 p-6 shadow-lg shadow-slate-900/20">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-400 mb-2">Resumen rápido</p>
+              <h2 className="text-2xl font-heading font-medium text-white">Resumen de reportes</h2>
+            </div>
+            <div className="rounded-3xl bg-slate-950/80 px-4 py-3 text-sm text-slate-300">
+              Último reporte: <span className="font-semibold text-white">{resumenReportes.ultimoReporte}</span>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-950/70 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Total reportes</p>
+              <p className="mt-3 text-3xl font-bold text-white">{resumenReportes.total}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-950/70 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Con foto</p>
+              <p className="mt-3 text-3xl font-bold text-white">{resumenReportes.conFoto}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-950/70 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Pendientes</p>
+              <p className="mt-3 text-3xl font-bold text-white">{resumenReportes.estados.Pendiente}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-950/70 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Solucionados</p>
+              <p className="mt-3 text-3xl font-bold text-white">{resumenReportes.estados.Solucionado}</p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-950/70 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Leve</p>
+              <p className="mt-3 text-2xl font-bold text-white">{resumenReportes.severidades.Leve}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-950/70 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Moderado</p>
+              <p className="mt-3 text-2xl font-bold text-white">{resumenReportes.severidades.Moderado}</p>
+            </div>
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-950/70 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Grave</p>
+              <p className="mt-3 text-2xl font-bold text-white">{resumenReportes.severidades.Grave}</p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {reportes.length === 0 ? (
         <div className="card-premium rounded-3xl p-16 text-center">

@@ -7,7 +7,7 @@ Sistema integrado de monitoreo IoT y reporte ciudadano para la gestión de incid
 ## Integrantes
 
 - Elkin Yesid Yandun
-- Julian Leonardo Ceron
+- Julián Leonardo Cerón
 - Brayan Esmid Cruz
 
 ## Funcionalidades
