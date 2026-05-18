@@ -20,37 +20,36 @@ const PantallaCarga = () => (
 
 const RutaPrivada = ({ children }: { children: React.ReactNode }) => {
   const { usuario, cargando } = usarAuth();
+  const location = useLocation();
   if (cargando) return <PantallaCarga />;
-  if (!usuario) return <Navigate to="/acceso" replace />;
+  if (!usuario) return <Navigate to="/acceso" state={{ from: location }} replace />;
   return <>{children}</>;
 };
 
 const RutaPublica = ({ children }: { children: React.ReactNode }) => {
   const { usuario, cargando } = usarAuth();
   if (cargando) return <PantallaCarga />;
-  if (usuario) return <Navigate to="/panel" replace />;
+  if (usuario) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
 
 const LayoutApp = () => {
-  const { usuario, cargando } = usarAuth();
-  const location = useLocation();
-  const esAuth = location.pathname === '/acceso' || location.pathname === '/registro';
+  const { cargando } = usarAuth();
 
   if (cargando) return <PantallaCarga />;
 
   return (
     <div className="min-h-screen">
-      {usuario && !esAuth && <BarraNavegacion />}
+      <BarraNavegacion />
       <main>
         <Routes>
           <Route path="/acceso" element={<RutaPublica><Acceso /></RutaPublica>} />
           <Route path="/registro" element={<RutaPublica><Registro /></RutaPublica>} />
-          <Route path="/" element={<RutaPrivada><Inicio /></RutaPrivada>} />
-          <Route path="/panel" element={<RutaPrivada><PanelIoT /></RutaPrivada>} />
+          <Route path="/" element={<Inicio />} />
+          <Route path="/panel" element={<PanelIoT />} />
           <Route path="/reportar" element={<RutaPrivada><NuevoReporte /></RutaPrivada>} />
-          <Route path="/reportes-ciudadanos" element={<RutaPrivada><ReportesCiudadanos /></RutaPrivada>} />
-          <Route path="*" element={<Navigate to={usuario ? '/panel' : '/acceso'} replace />} />
+          <Route path="/reportes-ciudadanos" element={<ReportesCiudadanos />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>
