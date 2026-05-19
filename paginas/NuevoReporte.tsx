@@ -13,7 +13,9 @@ import {
   Navigation,
   Loader2,
   ImagePlus,
+  Building2,
 } from 'lucide-react';
+import { ENTIDADES_DISPONIBLES, EntidadReporteId } from '../tipos';
 import { usarAuth } from '../contextos/ContextoAuth';
 import { ServicioBdLocal } from '../servicios/ServicioBdLocal';
 import { useNavigate, Link } from 'react-router-dom';
@@ -68,10 +70,13 @@ export default function NuevoReporte() {
   const [fotoError, setFotoError] = useState('');
   const [geoEstado, setGeoEstado] = useState<'idle' | 'cargando' | 'ok' | 'error'>('idle');
   const [geoMensaje, setGeoMensaje] = useState('');
+  const [entidad, setEntidad] = useState<EntidadReporteId>('acueducto-popayan');
   const [enviado, setEnviado] = useState(false);
   const [paso, setPaso] = useState(1);
   const [mensajeIA, setMensajeIA] = useState('');
   const [cargandoIA, setCargandoIA] = useState(false);
+
+  const entidadSeleccionada = ENTIDADES_DISPONIBLES.find((e) => e.id === entidad);
 
   const usarUbicacionActual = () => {
     if (!navigator.geolocation) {
@@ -86,7 +91,7 @@ export default function NuevoReporte() {
         setPosicion({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setGeoEstado('ok');
         setGeoMensaje('Ubicación GPS aplicada al mapa.');
-        setPaso(2);
+        setPaso(3);
       },
       (err) => {
         setGeoEstado('error');
@@ -108,7 +113,7 @@ export default function NuevoReporte() {
     try {
       const dataUrl = await comprimirImagen(archivo);
       setFotoPreview(dataUrl);
-      setPaso(2);
+      setPaso(3);
     } catch (err) {
       setFotoError(err instanceof Error ? err.message : 'Error al cargar la foto.');
       setFotoPreview(null);
@@ -126,6 +131,7 @@ export default function NuevoReporte() {
     ServicioBdLocal.guardarReporte({
       descripcion,
       categoria,
+      entidad,
       latitud: posicion.lat,
       longitud: posicion.lng,
       severidad,
@@ -158,9 +164,14 @@ export default function NuevoReporte() {
           <CheckCircle2 className="h-12 w-12 text-white" />
         </motion.div>
         <h2 className="text-4xl font-heading font-bold mb-4 text-white">¡Su voz cuenta!</h2>
-        <p className="text-slate-400 max-w-md text-lg mb-6">
+        <p className="text-slate-400 max-w-md text-lg mb-2">
           El reporte fue enviado y ya aparece en la sección de reportes ciudadanos.
         </p>
+        {entidadSeleccionada && (
+          <p className="text-sm text-emerald-400/90 font-bold uppercase tracking-widest mb-6">
+            {entidadSeleccionada.nombre}
+          </p>
+        )}
         {fotoPreview && (
           <img
             src={fotoPreview}
@@ -205,7 +216,7 @@ export default function NuevoReporte() {
           </p>
           <h1 className="text-5xl font-heading font-medium italic text-white">Digitalizar Reporte</h1>
           <p className="text-slate-500 mt-2 text-lg">
-            Incluye foto del problema y tu ubicación actual para una respuesta más rápida.
+            Selecciona la entidad, describe el problema y adjunta foto y ubicación para una respuesta más rápida.
           </p>
         </div>
 
@@ -215,8 +226,63 @@ export default function NuevoReporte() {
               className={`card-premium rounded-[2.5rem] p-10 transition-all ${paso === 1 ? 'opacity-100 ring-2 ring-primary-500/20' : 'paso-inactivo'}`}
             >
               <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-8">
-                Paso 01: Identificar Problema
+                Paso 01: Entidad responsable
               </h3>
+              <p className="text-slate-500 text-sm mb-6 -mt-4">
+                Indica a qué entidad corresponde el reporte para dirigirlo al equipo adecuado.
+              </p>
+              <div className="grid grid-cols-1 gap-4">
+                {ENTIDADES_DISPONIBLES.map((ent) => (
+                  <button
+                    key={ent.id}
+                    type="button"
+                    onClick={() => {
+                      setEntidad(ent.id);
+                      setPaso(2);
+                    }}
+                    className={`flex items-start gap-5 p-6 rounded-3xl border-2 transition-all text-left group ${
+                      entidad === ent.id
+                        ? 'bg-primary-500/10 border-primary-500 shadow-xl'
+                        : 'bg-slate-900 border-slate-800 hover:border-slate-600'
+                    }`}
+                  >
+                    <div
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
+                        entidad === ent.id ? 'bg-primary-500/20' : 'bg-slate-800'
+                      }`}
+                    >
+                      <Building2
+                        className={`h-7 w-7 ${
+                          entidad === ent.id ? 'text-primary-400' : 'text-slate-500'
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <p
+                        className={`text-sm font-black uppercase tracking-tight ${
+                          entidad === ent.id ? 'text-white' : 'text-slate-400'
+                        }`}
+                      >
+                        {ent.nombre}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">{ent.descripcion}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div
+              className={`card-premium rounded-[2.5rem] p-10 transition-all ${paso === 2 ? 'opacity-100 ring-2 ring-primary-500/20' : 'paso-inactivo'}`}
+            >
+              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-8">
+                Paso 02: Identificar problema
+              </h3>
+              {entidadSeleccionada && (
+                <p className="text-[10px] font-bold uppercase text-primary-400 tracking-widest mb-6 -mt-4">
+                  Entidad: {entidadSeleccionada.nombre}
+                </p>
+              )}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {CATEGORIAS.map((cat) => (
                   <button
@@ -224,7 +290,7 @@ export default function NuevoReporte() {
                     type="button"
                     onClick={() => {
                       setCategoria(cat.id);
-                      setPaso(2);
+                      setPaso(3);
                     }}
                     className={`flex flex-col items-center justify-center p-6 rounded-3xl border-2 transition-all gap-4 group ${
                       categoria === cat.id
@@ -253,11 +319,21 @@ export default function NuevoReporte() {
             </div>
 
             <div
-              className={`card-premium rounded-[2.5rem] p-10 transition-all ${paso === 2 ? 'opacity-100 ring-2 ring-primary-500/20' : 'paso-inactivo'}`}
+              className={`card-premium rounded-[2.5rem] p-10 transition-all ${paso === 3 ? 'opacity-100 ring-2 ring-primary-500/20' : 'paso-inactivo'}`}
             >
               <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-8">
-                Paso 02: Detalles y evidencia
+                Paso 03: Detalles y evidencia
               </h3>
+              <div className="flex flex-wrap gap-2 mb-6 -mt-2">
+                {entidadSeleccionada && (
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg bg-primary-500/10 text-primary-400 border border-primary-500/20">
+                    {entidadSeleccionada.nombre}
+                  </span>
+                )}
+                <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">
+                  {categoria}
+                </span>
+              </div>
               <div className="space-y-6">
                 <div>
                   <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block">
@@ -343,8 +419,9 @@ export default function NuevoReporte() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPaso(1)}
+                    onClick={() => setPaso(2)}
                     className="p-5 rounded-2xl border border-slate-800 text-slate-400 hover:text-white"
+                    title="Volver al paso anterior"
                   >
                     <X className="h-6 w-6" />
                   </button>
@@ -404,7 +481,7 @@ export default function NuevoReporte() {
                   <MapClickHandler
                     onLocationSelect={(lat, lng) => {
                       setPosicion({ lat, lng });
-                      setPaso(2);
+                      setPaso(3);
                       setGeoMensaje('Ubicación ajustada manualmente en el mapa.');
                       setGeoEstado('ok');
                     }}

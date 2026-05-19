@@ -46,6 +46,9 @@ export const ServicioBdLocal = {
   obtenerReportesPorAutor: (autorId: string): Reporte[] =>
     ServicioBdLocal.obtenerReportes().filter((r) => r.autorId === autorId),
 
+  obtenerReportePorId: (id: string): Reporte | undefined =>
+    ServicioBdLocal.obtenerReportes().find((r) => r.id === id),
+
   obtenerSensoresIoT: (modoTormenta: boolean = false): Promise<SensorIoT[]> => {
     return new Promise((resolve) => {
       setTimeout(() => {

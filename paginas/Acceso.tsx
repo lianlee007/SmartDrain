@@ -125,6 +125,9 @@ export default function Acceso() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                 />
+                <p className="mt-2 text-sm text-emerald-400 text-right">
+                  ¿Olvidaste tu contraseña?
+                </p>
               </div>
             </div>
 

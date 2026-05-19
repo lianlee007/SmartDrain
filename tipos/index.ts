@@ -10,10 +10,32 @@ export interface RegistroMantenimiento {
   tecnico: string;
 }
 
+export type EntidadReporteId = 'acueducto-popayan';
+
+export interface EntidadReporte {
+  id: EntidadReporteId;
+  nombre: string;
+  descripcion: string;
+}
+
+export const ENTIDADES_DISPONIBLES: EntidadReporte[] = [
+  {
+    id: 'acueducto-popayan',
+    nombre: 'Acueducto de Popayán',
+    descripcion: 'Agua potable, alcantarillado y drenaje pluvial en la ciudad',
+  },
+];
+
+export function nombreEntidadReporte(entidadId?: EntidadReporteId): string | null {
+  if (!entidadId) return null;
+  return ENTIDADES_DISPONIBLES.find((e) => e.id === entidadId)?.nombre ?? null;
+}
+
 export interface Reporte {
   id: string;
   descripcion: string;
   categoria?: string;
+  entidad?: EntidadReporteId;
   latitud: number;
   longitud: number;
   severidad: 'Leve' | 'Moderado' | 'Grave';

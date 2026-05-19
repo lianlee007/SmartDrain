@@ -10,6 +10,7 @@ import Registro from './paginas/Registro';
 import NuevoReporte from './paginas/NuevoReporte';
 import PanelIoT from './paginas/PanelIoT';
 import ReportesCiudadanos from './paginas/ReportesCiudadanos';
+import DetalleReporte from './paginas/DetalleReporte';
 import Perfil from './paginas/Perfil';
 
 const PantallaCarga = () => (
@@ -50,6 +51,7 @@ const LayoutApp = () => {
           <Route path="/panel" element={<PanelIoT />} />
           <Route path="/reportar" element={<RutaPrivada><NuevoReporte /></RutaPrivada>} />
           <Route path="/perfil" element={<RutaPrivada><Perfil /></RutaPrivada>} />
+          <Route path="/reportes-ciudadanos/:id" element={<DetalleReporte />} />
           <Route path="/reportes-ciudadanos" element={<ReportesCiudadanos />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -128,24 +128,38 @@ export default function PanelIoT() {
   }
 
   const sensoresCriticos = sensores.filter(s => s.estado === 'Critico' || s.estado === 'Alerta');
+  const sensoresAlerta = sensores.filter(s => s.estado === 'Alerta').length;
+  const sensoresEnCritico = sensores.filter(s => s.estado === 'Critico').length;
+  const nivelPromedio = sensores.length
+    ? Math.round(sensores.reduce((acc, s) => acc + s.nivelAgua, 0) / sensores.length)
+    : 0;
+
+  const encabezadoFicha = (titulo: string, icono?: React.ReactNode) => (
+    <h3 className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-4 shrink-0">
+      {icono}
+      {titulo}
+    </h3>
+  );
 
   return (
-    <div className="max-w-[1600px] mx-auto px-6 py-8 min-h-[calc(100vh-5rem)]">
+    <motion.div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 sm:py-8 min-h-[calc(100vh-5rem)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       
-      {/* Header Informativo */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-10 gap-6">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-6">
         <div>
-          <h1 className="text-4xl font-heading font-medium italic text-gray-900 dark:text-white leading-tight">Mando de Resiliencia</h1>
-          <p className="text-sm font-medium text-gray-500 dark:text-slate-500 mt-1">Popayán, Colombia • Monitoreo Crítico en Tiempo Real</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary-500 mb-2">Centro de despacho</p>
+          <h1 className="text-3xl sm:text-4xl font-heading font-medium italic text-gray-900 dark:text-white leading-tight">Mando de Resiliencia</h1>
+          <p className="text-sm font-medium text-gray-500 dark:text-slate-500 mt-1">Popayán, Colombia • Monitoreo en tiempo real</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
            <button 
             onClick={() => setModoTormenta(!modoTormenta)}
-            className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg ${modoTormenta ? 'bg-red-600 text-white shadow-red-600/30' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 shadow-sm'}`}
+            className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all shadow-lg ${modoTormenta ? 'bg-red-600 text-white shadow-red-600/30' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 shadow-sm'}`}
            >
-             <CloudLightning className={`h-5 w-5 ${modoTormenta ? 'animate-pulse' : 'text-slate-500 dark:text-slate-400'}`} />
-             {modoTormenta ? 'ALERTA METEOROLÓGICA ACTIVA' : 'MODO TORMENTA'}
+             <CloudLightning className={`h-4 w-4 sm:h-5 sm:w-5 shrink-0 ${modoTormenta ? 'animate-pulse' : 'text-slate-500 dark:text-slate-400'}`} />
+             <span className="hidden sm:inline">{modoTormenta ? 'ALERTA METEOROLÓGICA ACTIVA' : 'MODO TORMENTA'}</span>
+             <span className="sm:hidden">{modoTormenta ? 'Alerta' : 'Tormenta'}</span>
            </button>
 
            <button 
@@ -198,10 +212,30 @@ export default function PanelIoT() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* KPIs rápidos */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+        {[
+          { label: 'Nodos activos', valor: sensores.length, Icon: Activity, color: 'text-primary-500', fondo: 'bg-primary-500/10' },
+          { label: 'Incidentes', valor: sensoresCriticos.length, Icon: AlertOctagon, color: sensoresCriticos.length ? 'text-red-500' : 'text-slate-400', fondo: sensoresCriticos.length ? 'bg-red-500/10' : 'bg-slate-500/10' },
+          { label: 'Nivel promedio', valor: `${nivelPromedio}%`, Icon: Waves, color: 'text-blue-500', fondo: 'bg-blue-500/10' },
+          { label: 'Reportes', valor: reportes.length, Icon: MapPin, color: 'text-amber-500', fondo: 'bg-amber-500/10' },
+        ].map(({ label, valor, Icon, color, fondo }) => (
+          <div key={label} className="card-premium rounded-2xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+            <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl ${fondo} flex items-center justify-center shrink-0`}>
+              <Icon className={`h-5 w-5 ${color}`} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">{label}</p>
+              <p className="text-xl sm:text-2xl font-heading font-bold text-gray-900 dark:text-white tabular-nums">{valor}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 xl:gap-6">
         
-        {/* Lado Izquierdo - Status y Usuarios */}
-        <div className="lg:col-span-3 space-y-6">
+        {/* Columna izquierda */}
+        <div className="xl:col-span-3 flex flex-col gap-5 order-2 xl:order-1">
            <AnalisisIA
              sensores={sensores}
              clima={clima}
@@ -209,12 +243,12 @@ export default function PanelIoT() {
              modoTormenta={modoTormenta}
            />
 
-           <div className="card-premium rounded-3xl p-6">
-              <h3 className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-6">Estado de Salud de Red</h3>
-              <div className="space-y-6">
+           <div className="card-premium rounded-2xl p-5 shrink-0">
+              {encabezadoFicha('Salud de red')}
+              <div className="space-y-4">
                  <div>
                    <div className="flex justify-between mb-2">
-                     <span className="text-xs font-bold text-gray-700 dark:text-slate-300">Capacidad Total</span>
+                     <span className="text-xs font-bold text-gray-700 dark:text-slate-300">Capacidad total</span>
                      <span className="text-xs font-mono text-primary-500">78%</span>
                    </div>
                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -223,7 +257,7 @@ export default function PanelIoT() {
                  </div>
                  <div>
                    <div className="flex justify-between mb-2">
-                     <span className="text-xs font-bold text-gray-700 dark:text-slate-300">Flujo Promedio</span>
+                     <span className="text-xs font-bold text-gray-700 dark:text-slate-300">Flujo promedio</span>
                      <span className="text-xs font-mono text-blue-500">1.4 m³/s</span>
                    </div>
                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -233,9 +267,9 @@ export default function PanelIoT() {
               </div>
            </div>
 
-           <div className="card-premium rounded-3xl p-6 h-[400px] flex flex-col">
-              <h3 className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-4">Registro Operativo</h3>
-              <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+           <div className="card-premium rounded-2xl p-5 flex flex-col flex-1 min-h-[12rem] xl:min-h-[14rem]">
+              {encabezadoFicha('Registro operativo')}
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scrollbar min-h-0">
                  {reportes.slice().reverse().map(r => (
                    <div key={r.id} className="p-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col gap-1">
                       <div className="flex justify-between items-center">
@@ -243,7 +277,7 @@ export default function PanelIoT() {
                         <span className="text-[9px] text-slate-500 dark:text-slate-400">{new Date(r.fecha).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                       </div>
                       {r.fotoUrl && <img src={r.fotoUrl} alt="" className="w-full h-16 object-cover rounded-lg" />}
-                      <p className="text-xs font-medium text-slate-300 line-clamp-2">{r.descripcion}</p>
+                      <p className="text-xs font-medium text-slate-600 dark:text-slate-300 line-clamp-2">{r.descripcion}</p>
                    </div>
                  ))}
                  {reportes.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400 py-8 text-center uppercase tracking-widest">Sin actividad reciente</p>}
@@ -251,16 +285,19 @@ export default function PanelIoT() {
            </div>
         </div>
 
-        {/* Centro - Mapa y Charts */}
-        <div className="lg:col-span-6 space-y-8">
-           <div className="card-premium rounded-[2.5rem] overflow-hidden h-[500px] flex flex-col shadow-2xl relative z-0">
-             <div className="absolute top-4 right-4 z-10 flex gap-2">
-                <div className="glass px-4 py-2 rounded-xl flex items-center gap-2">
-                   <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-                   <span className="text-[10px] font-black text-slate-700 dark:text-white uppercase">Live Data Sync</span>
+        {/* Columna central — mapa y gráficas */}
+        <div className="xl:col-span-6 flex flex-col gap-5 order-1 xl:order-2">
+           <div className="card-premium rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col shadow-xl relative z-0 min-h-[280px] h-[42vh] sm:h-[46vh] xl:h-[min(52vh,520px)] xl:max-h-[540px]">
+             <div className="absolute top-3 left-3 right-3 z-10 flex items-start justify-between gap-2 pointer-events-none">
+                <div className="glass px-3 py-1.5 rounded-lg flex items-center gap-2">
+                   <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                   <span className="text-[9px] font-black text-slate-700 dark:text-white uppercase tracking-wide">En vivo</span>
+                </div>
+                <div className="glass px-3 py-1.5 rounded-lg hidden sm:block">
+                   <span className="text-[9px] font-bold text-slate-600 dark:text-slate-300 uppercase">{sensores.length} nodos · {reportes.length} reportes</span>
                 </div>
              </div>
-             <div className="flex-1 w-full bg-slate-100 dark:bg-slate-900 min-h-[400px]">
+             <div className="flex-1 w-full bg-slate-100 dark:bg-slate-900 min-h-0">
                 <MapContainer center={[2.4418, -76.6063]} zoom={14} style={{ height: '100%', width: '100%' }}>
                   <TileLayer key={tema} url={urlCapaMapa()} attribution='&copy; CARTO' />
                   {sensores.map(sensor => (
@@ -313,12 +350,9 @@ export default function PanelIoT() {
              </div>
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="card-premium rounded-3xl p-6 h-[300px] flex flex-col">
-                <h3 className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-primary-500" />
-                    Comparativa de Caudal
-                </h3>
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 min-h-[220px] sm:min-h-[240px]">
+              <div className="card-premium rounded-2xl p-5 h-[220px] sm:h-[240px] flex flex-col">
+                {encabezadoFicha('Comparativa de caudal', <Activity className="h-4 w-4 text-primary-500" />)}
                 <div className="flex-1">
                    <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={sensores.slice(0, 5)}>
@@ -338,10 +372,10 @@ export default function PanelIoT() {
                 </div>
               </div>
 
-              {sensorSeleccionado && (
+              {sensorSeleccionado ? (
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                  className="card-premium rounded-3xl p-6 h-[300px] border-l-4 border-primary-500 flex flex-col"
+                  initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                  className="card-premium rounded-2xl p-5 h-[220px] sm:h-[240px] border-l-4 border-primary-500 flex flex-col"
                 >
                    <div className="flex justify-between mb-4">
                       <div className="leading-none">
@@ -364,26 +398,32 @@ export default function PanelIoT() {
                       </ResponsiveContainer>
                    </div>
                 </motion.div>
+              ) : (
+                <div className="card-premium rounded-2xl p-5 h-[220px] sm:h-[240px] flex flex-col items-center justify-center text-center border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30">
+                  <MapPin className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-3" />
+                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Detalle de nodo</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 max-w-[200px]">Selecciona un sensor en el mapa o en la lista para ver su historial</p>
+                </div>
               )}
            </div>
         </div>
 
-        {/* Lado Derecho - Lista e Alertas */}
-        <div className="lg:col-span-3 space-y-6">
-           <div className="card-premium rounded-3xl p-6 h-[500px] flex flex-col">
-              <h3 className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-6">Nodos de Red ({sensores.length})</h3>
-              <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+        {/* Columna derecha */}
+        <div className="xl:col-span-3 flex flex-col gap-5 order-3">
+           <div className="card-premium rounded-2xl p-5 flex flex-col min-h-[280px] h-[42vh] sm:h-[46vh] xl:h-[min(52vh,520px)] xl:max-h-[540px]">
+              {encabezadoFicha(`Nodos de red (${sensores.length})`)}
+              <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar min-h-0">
                  {sensores.map(s => (
                    <button 
                     key={s.id} onClick={() => setSensorSeleccionado(s)}
-                    className={`w-full p-4 rounded-2xl border transition-all text-left flex items-center justify-between group ${sensorSeleccionado?.id === s.id ? 'bg-primary-500/10 border-primary-500/30' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'}`}
+                    className={`w-full p-3 rounded-xl border transition-all text-left flex items-center justify-between group ${sensorSeleccionado?.id === s.id ? 'bg-primary-500/10 border-primary-500/40 ring-1 ring-primary-500/20' : 'bg-slate-50 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-primary-500/30'}`}
                    >
-                     <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black ${s.estado === 'Critico' ? 'bg-red-500 text-white' : s.estado === 'Alerta' ? 'bg-orange-500 text-white' : 'bg-primary-500 text-white'}`}>
+                     <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={`w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-[10px] font-black ${s.estado === 'Critico' ? 'bg-red-500 text-white' : s.estado === 'Alerta' ? 'bg-orange-500 text-white' : 'bg-primary-500 text-white'}`}>
                            {s.nivelAgua}%
                         </div>
-                        <div>
-                           <p className="text-[11px] font-bold text-gray-800 dark:text-slate-200 leading-tight mb-0.5">{s.ubicacion}</p>
+                        <div className="min-w-0">
+                           <p className="text-[11px] font-bold text-gray-800 dark:text-slate-200 leading-tight truncate">{s.ubicacion}</p>
                            <div className="flex items-center gap-2 opacity-60">
                               <Battery className="h-3 w-3" />
                               <span className="text-[9px] font-bold uppercase">{s.bateria}%</span>
@@ -396,11 +436,13 @@ export default function PanelIoT() {
               </div>
            </div>
 
-           <div className="card-premium rounded-3xl p-6 bg-red-600/5 border-red-500/20">
-              <h3 className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                 <AlertOctagon className="h-4 w-4" />
-                 Zonas de Despacho Inmediato
-              </h3>
+           <div className="card-premium rounded-2xl p-5 bg-red-500/5 border-red-500/25 shrink-0">
+              {encabezadoFicha('Despacho inmediato', <AlertOctagon className="h-4 w-4 text-red-500" />)}
+              {(sensoresEnCritico > 0 || sensoresAlerta > 0) && (
+                <p className="text-[10px] font-bold text-red-600/80 dark:text-red-400/80 -mt-2 mb-3">
+                  {sensoresEnCritico} crítico{sensoresEnCritico !== 1 ? 's' : ''} · {sensoresAlerta} en alerta
+                </p>
+              )}
               {sensoresCriticos.length === 0 ? (
                 <p className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest text-center py-4">Sin incidentes graves</p>
               ) : (
@@ -424,6 +466,6 @@ export default function PanelIoT() {
            </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

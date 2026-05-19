@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { usarAuth } from '../contextos/ContextoAuth';
 import { ServicioBdLocal } from '../servicios/ServicioBdLocal';
-import { Reporte } from '../tipos';
+import { nombreEntidadReporte, Reporte } from '../tipos';
 
 const colorSeveridad: Record<Reporte['severidad'], string> = {
   Leve: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
@@ -291,11 +291,18 @@ export default function Perfil() {
                 </div>
 
                 <div className="p-5 flex flex-col flex-1 gap-3">
-                  {r.categoria && (
-                    <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest">
-                      {r.categoria}
-                    </span>
-                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {nombreEntidadReporte(r.entidad) && (
+                      <span className="text-[10px] font-black uppercase text-sky-400 tracking-widest px-2 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20">
+                        {nombreEntidadReporte(r.entidad)}
+                      </span>
+                    )}
+                    {r.categoria && (
+                      <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest">
+                        {r.categoria}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-slate-200 leading-relaxed flex-1 line-clamp-3">
                     {r.descripcion}
                   </p>

@@ -100,7 +100,7 @@ export const AnalisisIA: React.FC<Props> = ({
   const alertas = sensores.filter((s) => s.estado === 'Alerta').length;
 
   return (
-    <div className="card-premium rounded-3xl p-6 border border-slate-200 dark:border-slate-700 relative overflow-hidden">
+    <div className="card-premium rounded-2xl p-5 border border-slate-200 dark:border-slate-700 relative overflow-hidden shrink-0">
       <div className="absolute top-0 right-0 p-4 opacity-[0.07] dark:opacity-10 pointer-events-none">
         <Sparkles className="h-20 w-20 text-emerald-500" />
       </div>

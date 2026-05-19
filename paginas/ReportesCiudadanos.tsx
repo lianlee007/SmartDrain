@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Camera, FilePlus, AlertTriangle, Clock, User, BarChart3 } from 'lucide-react';
+import { MapPin, Camera, FilePlus, AlertTriangle, Clock, User, BarChart3, Eye } from 'lucide-react';
 import { ServicioBdLocal } from '../servicios/ServicioBdLocal';
-import { Reporte } from '../tipos';
+import { nombreEntidadReporte, Reporte } from '../tipos';
 import { usarAuth } from '../contextos/ContextoAuth';
 
 const colorSeveridad: Record<Reporte['severidad'], string> = {
@@ -180,11 +180,18 @@ export default function ReportesCiudadanos() {
               </div>
 
               <div className="p-5 flex flex-col flex-1 gap-3">
-                {r.categoria && (
-                  <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest">
-                    {r.categoria}
-                  </span>
-                )}
+                <div className="flex flex-wrap gap-2">
+                  {nombreEntidadReporte(r.entidad) && (
+                    <span className="text-[10px] font-black uppercase text-sky-400 tracking-widest px-2 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20">
+                      {nombreEntidadReporte(r.entidad)}
+                    </span>
+                  )}
+                  {r.categoria && (
+                    <span className="text-[10px] font-black uppercase text-emerald-400 tracking-widest">
+                      {r.categoria}
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm text-slate-200 leading-relaxed flex-1">{r.descripcion}</p>
 
                 <div className="flex flex-wrap gap-3 text-[10px] font-bold uppercase text-slate-500 tracking-wide">
@@ -207,11 +214,20 @@ export default function ReportesCiudadanos() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-                  <span className="text-[9px] font-bold uppercase text-slate-500">{r.estado}</span>
-                  {r.autorId === usuario?.id && (
-                    <span className="text-[9px] font-bold uppercase text-emerald-500">Tu reporte</span>
-                  )}
+                <div className="pt-3 border-t border-slate-800 space-y-3">
+                  <Link
+                    to={`/reportes-ciudadanos/${r.id}`}
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-800 hover:bg-emerald-600 text-slate-200 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-all border border-slate-700 hover:border-emerald-500"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    Ver detalles
+                  </Link>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-bold uppercase text-slate-500">{r.estado}</span>
+                    {r.autorId === usuario?.id && (
+                      <span className="text-[9px] font-bold uppercase text-emerald-500">Tu reporte</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </article>
