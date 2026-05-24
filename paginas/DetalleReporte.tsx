@@ -71,9 +71,9 @@ export default function DetalleReporte() {
       setListo(true);
       return;
     }
-    const encontrado = ServicioBdLocal.obtenerReportePorId(id);
-    setReporte(encontrado ?? null);
-    setListo(true);
+    ServicioBdLocal.obtenerReportePorId(id)
+      .then((encontrado) => setReporte(encontrado ?? null))
+      .finally(() => setListo(true));
   }, [id]);
 
   if (!listo) {

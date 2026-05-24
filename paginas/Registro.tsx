@@ -24,11 +24,11 @@ export default function Registro() {
   const location = useLocation();
   const destino = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/reportar';
 
-  const manejarEnvio = (e: React.FormEvent) => {
+  const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     try {
-      registrar(nombre, correo, password, recordar);
+      await registrar(nombre, correo, password, recordar);
       navigate(destino, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo crear la cuenta.');

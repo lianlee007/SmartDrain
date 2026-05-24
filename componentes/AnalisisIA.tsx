@@ -37,7 +37,6 @@ export const AnalisisIA: React.FC<Props> = ({
   const [insight, setInsight] = useState('');
   const [cargando, setCargando] = useState(true);
   const [actualizando, setActualizando] = useState(false);
-  const [origen, setOrigen] = useState<'groq' | 'local'>('local');
   const ultimaPeticion = useRef(0);
   const ultimaConsultaMs = useRef(0);
   const ultimaFirma = useRef('');
@@ -64,12 +63,11 @@ export const AnalisisIA: React.FC<Props> = ({
     }
 
     try {
-      const { texto, origen: fuente } = await ServicioGroq.analizarRed(contexto);
+      const { texto } = await ServicioGroq.analizarRed(contexto);
       if (idPeticion !== ultimaPeticion.current) return;
 
       insightRef.current = texto;
       setInsight(texto);
-      setOrigen(fuente);
       ultimaConsultaMs.current = Date.now();
       ultimaFirma.current = firma;
     } finally {
@@ -112,7 +110,7 @@ export const AnalisisIA: React.FC<Props> = ({
           </div>
           <div>
             <h4 className="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-400 tracking-widest">
-              IA operativa • {origen === 'groq' ? 'Groq' : 'Local'}
+              IA operativa
             </h4>
             <h3 className="font-heading font-bold text-slate-900 dark:text-white">Análisis SmartDrain</h3>
           </div>
@@ -137,7 +135,7 @@ export const AnalisisIA: React.FC<Props> = ({
               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
             </div>
             <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
-              {ServicioGroq.estaConfigurado() ? 'Consultando Groq…' : 'Analizando telemetría…'}
+              Procesando análisis de la red…
             </span>
           </div>
         ) : (

@@ -23,11 +23,11 @@ export default function Acceso() {
   const location = useLocation();
   const destino = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/reportar';
 
-  const manejarEnvio = (e: React.FormEvent) => {
+  const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     try {
-      iniciarSesion(correo, password, recordar);
+      await iniciarSesion(correo, password, recordar);
       navigate(destino, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo iniciar sesión.');

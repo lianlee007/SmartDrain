@@ -294,7 +294,7 @@ export default function Inicio() {
             </div>
             <div>
               <p className="text-4xl font-heading text-emerald-400 mb-1">IA</p>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Análisis Groq</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Análisis inteligente</p>
             </div>
           </div>
         </div>

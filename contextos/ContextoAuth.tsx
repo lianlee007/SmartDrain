@@ -5,8 +5,8 @@ import { ServicioAuth } from '../servicios/ServicioAuth';
 interface ContextoAuthValor {
   usuario: Usuario | null;
   cargando: boolean;
-  registrar: (nombre: string, correo: string, password: string, recordar: boolean) => void;
-  iniciarSesion: (correo: string, password: string, recordar: boolean) => void;
+  registrar: (nombre: string, correo: string, password: string, recordar: boolean) => Promise<void>;
+  iniciarSesion: (correo: string, password: string, recordar: boolean) => Promise<void>;
   cerrarSesion: () => void;
 }
 
@@ -22,14 +22,14 @@ export const ProveedorAuth: React.FC<{ children: React.ReactNode }> = ({ childre
     setCargando(false);
   }, []);
 
-  const registrar = (nombre: string, correo: string, password: string, recordar: boolean) => {
-    const nuevo = ServicioAuth.registrar(nombre, correo, password);
+  const registrar = async (nombre: string, correo: string, password: string, recordar: boolean) => {
+    const nuevo = await ServicioAuth.registrar(nombre, correo, password);
     ServicioAuth.guardarSesion(nuevo, recordar);
     setUsuario(nuevo);
   };
 
-  const iniciarSesion = (correo: string, password: string, recordar: boolean) => {
-    const activo = ServicioAuth.iniciarSesion(correo, password);
+  const iniciarSesion = async (correo: string, password: string, recordar: boolean) => {
+    const activo = await ServicioAuth.iniciarSesion(correo, password);
     ServicioAuth.guardarSesion(activo, recordar);
     setUsuario(activo);
   };

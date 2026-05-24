@@ -128,7 +128,7 @@ export default function NuevoReporte() {
 
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
-    ServicioBdLocal.guardarReporte({
+    await ServicioBdLocal.guardarReporte({
       descripcion,
       categoria,
       entidad,
@@ -181,7 +181,7 @@ export default function NuevoReporte() {
         )}
         <motion.div className="max-w-lg card-premium rounded-2xl p-5 text-left border border-emerald-500/20 mb-8">
           <p className="text-[10px] font-black uppercase text-emerald-400 tracking-widest mb-2">
-            Análisis Groq
+            Evaluación operativa
           </p>
           {cargandoIA ? (
             <p className="text-sm text-slate-400 italic">Generando recomendación…</p>

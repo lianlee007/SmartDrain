@@ -57,7 +57,9 @@ export default function ReportesCiudadanos() {
   }, [reportes]);
 
   useEffect(() => {
-    setReportes(ServicioBdLocal.obtenerReportes().slice().reverse());
+    ServicioBdLocal.obtenerReportes()
+      .then((lista) => setReportes(lista))
+      .catch(console.error);
   }, []);
 
   return (
@@ -237,7 +239,7 @@ export default function ReportesCiudadanos() {
 
       <p className="mt-8 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
         <AlertTriangle className="h-3 w-3" />
-        Los reportes y fotos se guardan en este dispositivo (localStorage).
+        Los reportes quedan disponibles para el equipo operativo y el mapa central.
       </p>
     </div>
   );
