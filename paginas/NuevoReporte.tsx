@@ -58,6 +58,12 @@ function CentrarMapa({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
+function clasePaso(numero: number, pasoActual: number): string {
+  if (pasoActual === numero) return 'opacity-100 ring-2 ring-primary-500/20';
+  if (pasoActual < numero) return 'paso-bloqueado';
+  return 'paso-atenuado';
+}
+
 export default function NuevoReporte() {
   const { usuario } = usarAuth();
   const navigate = useNavigate();
@@ -70,13 +76,27 @@ export default function NuevoReporte() {
   const [fotoError, setFotoError] = useState('');
   const [geoEstado, setGeoEstado] = useState<'idle' | 'cargando' | 'ok' | 'error'>('idle');
   const [geoMensaje, setGeoMensaje] = useState('');
-  const [entidad, setEntidad] = useState<EntidadReporteId>('acueducto-popayan');
+  const [entidad, setEntidad] = useState<EntidadReporteId | null>(null);
+  const [errorEntidad, setErrorEntidad] = useState('');
   const [enviado, setEnviado] = useState(false);
   const [paso, setPaso] = useState(1);
   const [mensajeIA, setMensajeIA] = useState('');
   const [cargandoIA, setCargandoIA] = useState(false);
 
-  const entidadSeleccionada = ENTIDADES_DISPONIBLES.find((e) => e.id === entidad);
+  const entidadSeleccionada = entidad
+    ? ENTIDADES_DISPONIBLES.find((e) => e.id === entidad)
+    : undefined;
+
+  const seleccionarEntidad = (id: EntidadReporteId) => {
+    setEntidad(id);
+    setErrorEntidad('');
+    if (paso < 2) setPaso(2);
+  };
+
+  const seleccionarCategoria = (id: Categoria) => {
+    setCategoria(id);
+    if (paso < 3) setPaso(3);
+  };
 
   const usarUbicacionActual = () => {
     if (!navigator.geolocation) {
@@ -128,6 +148,11 @@ export default function NuevoReporte() {
 
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!entidad) {
+      setErrorEntidad('Selecciona la entidad responsable antes de enviar.');
+      setPaso(1);
+      return;
+    }
     await ServicioBdLocal.guardarReporte({
       descripcion,
       categoria,
@@ -223,23 +248,24 @@ export default function NuevoReporte() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           <div className="lg:col-span-7 space-y-8">
             <div
-              className={`card-premium rounded-[2.5rem] p-10 transition-all ${paso === 1 ? 'opacity-100 ring-2 ring-primary-500/20' : 'paso-inactivo'}`}
+              className={`card-premium rounded-[2.5rem] p-10 transition-all ${clasePaso(1, paso)}`}
             >
               <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-8">
                 Paso 01: Entidad responsable
               </h3>
               <p className="text-slate-500 text-sm mb-6 -mt-4">
-                Indica a qué entidad corresponde el reporte para dirigirlo al equipo adecuado.
+                Indica a qué entidad corresponde el reporte. Puedes cambiar la selección en cualquier
+                momento.
               </p>
+              {errorEntidad && (
+                <p className="text-sm text-red-400 mb-4">{errorEntidad}</p>
+              )}
               <div className="grid grid-cols-1 gap-4">
                 {ENTIDADES_DISPONIBLES.map((ent) => (
                   <button
                     key={ent.id}
                     type="button"
-                    onClick={() => {
-                      setEntidad(ent.id);
-                      setPaso(2);
-                    }}
+                    onClick={() => seleccionarEntidad(ent.id)}
                     className={`flex items-start gap-5 p-6 rounded-3xl border-2 transition-all text-left group ${
                       entidad === ent.id
                         ? 'bg-primary-500/10 border-primary-500 shadow-xl'
@@ -273,7 +299,7 @@ export default function NuevoReporte() {
             </div>
 
             <div
-              className={`card-premium rounded-[2.5rem] p-10 transition-all ${paso === 2 ? 'opacity-100 ring-2 ring-primary-500/20' : 'paso-inactivo'}`}
+              className={`card-premium rounded-[2.5rem] p-10 transition-all ${clasePaso(2, paso)}`}
             >
               <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-8">
                 Paso 02: Identificar problema
@@ -288,10 +314,7 @@ export default function NuevoReporte() {
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => {
-                      setCategoria(cat.id);
-                      setPaso(3);
-                    }}
+                    onClick={() => seleccionarCategoria(cat.id)}
                     className={`flex flex-col items-center justify-center p-6 rounded-3xl border-2 transition-all gap-4 group ${
                       categoria === cat.id
                         ? 'bg-primary-500/10 border-primary-500 shadow-xl'
@@ -319,7 +342,7 @@ export default function NuevoReporte() {
             </div>
 
             <div
-              className={`card-premium rounded-[2.5rem] p-10 transition-all ${paso === 3 ? 'opacity-100 ring-2 ring-primary-500/20' : 'paso-inactivo'}`}
+              className={`card-premium rounded-[2.5rem] p-10 transition-all ${clasePaso(3, paso)}`}
             >
               <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-8">
                 Paso 03: Detalles y evidencia

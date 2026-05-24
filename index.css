@@ -195,9 +195,13 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--surface-muted);
 }
 
-.paso-inactivo {
-  opacity: 0.55;
+.paso-bloqueado {
+  opacity: 0.45;
   pointer-events: none;
+}
+
+.paso-atenuado {
+  opacity: 0.75;
 }
 
 .leaflet-container {

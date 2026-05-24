@@ -10,7 +10,7 @@ export interface RegistroMantenimiento {
   tecnico: string;
 }
 
-export type EntidadReporteId = 'acueducto-popayan';
+export type EntidadReporteId = 'acueducto-popayan' | 'alcaldia-popayan' | 'bomberos-popayan';
 
 export interface EntidadReporte {
   id: EntidadReporteId;
@@ -23,6 +23,16 @@ export const ENTIDADES_DISPONIBLES: EntidadReporte[] = [
     id: 'acueducto-popayan',
     nombre: 'Acueducto de Popayán',
     descripcion: 'Agua potable, alcantarillado y drenaje pluvial en la ciudad',
+  },
+  {
+    id: 'alcaldia-popayan',
+    nombre: 'Alcaldía de Popayán',
+    descripcion: 'Vías, obras públicas e infraestructura urbana municipal',
+  },
+  {
+    id: 'bomberos-popayan',
+    nombre: 'Cuerpo de Bomberos',
+    descripcion: 'Emergencias, inundaciones y riesgos en vía pública',
   },
 ];
 
