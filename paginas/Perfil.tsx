@@ -33,11 +33,10 @@ export default function Perfil() {
   const [reportes, setReportes] = useState<Reporte[]>([]);
 
   useEffect(() => {
-    if (usuario) {
-      setReportes(
-        ServicioBdLocal.obtenerReportesPorAutor(usuario.id).slice().reverse()
-      );
-    }
+    if (!usuario) return;
+    ServicioBdLocal.obtenerReportesPorAutor(usuario.id)
+      .then((lista) => setReportes(lista.slice().reverse()))
+      .catch(console.error);
   }, [usuario]);
 
   const estadisticas = useMemo(() => {
