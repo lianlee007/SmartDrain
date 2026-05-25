@@ -1,7 +1,12 @@
+/**
+ * Integración con Groq (LLM) para análisis operativo y evaluación de reportes.
+ * Si no hay API key o falla la red, usa respuestas locales deterministas.
+ */
 import { DatosClima, Reporte, SensorIoT } from '../tipos';
 
 const ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
 
+/** Datos que se envían al modelo para contextualizar Popayán. */
 export interface ContextoOperativo {
   sensores: SensorIoT[];
   clima?: DatosClima | null;
@@ -14,6 +19,7 @@ export interface ResultadoGroq {
   origen: 'groq' | 'local';
 }
 
+/** Lee VITE_GROQ_* o GROQ_* según entorno Vite/servidor. */
 function obtenerConfig() {
   const apiKey =
     import.meta.env.VITE_GROQ_API_KEY?.trim() ||
@@ -26,6 +32,7 @@ function obtenerConfig() {
   return { apiKey, modelo };
 }
 
+/** Análisis sin LLM: prioriza nodos Crítico/Alerta y modo tormenta. */
 function analisisRespaldoRed(ctx: ContextoOperativo): string {
   const { sensores, reportes = [], modoTormenta } = ctx;
   const criticos = sensores.filter((s) => s.estado === 'Critico');
@@ -55,6 +62,7 @@ function evaluarReporteRespaldo(
   return `Reporte registrado como ${severidad} (${categoria}). El equipo operativo revisará: ${descripcion.slice(0, 120)}${descripcion.length > 120 ? '…' : ''}`;
 }
 
+/** Construye el bloque de contexto que recibe el prompt del chat. */
 function resumenOperativo(ctx: ContextoOperativo): string {
   const { sensores, clima, reportes = [], modoTormenta } = ctx;
 
@@ -92,6 +100,7 @@ function resumenOperativo(ctx: ContextoOperativo): string {
     .join('\n');
 }
 
+/** Llamada OpenAI-compatible a Groq; sin apiKey devuelve origen local vacío. */
 async function completarChat(
   system: string,
   user: string,
@@ -135,6 +144,7 @@ async function completarChat(
 export const ServicioGroq = {
   estaConfigurado: (): boolean => Boolean(obtenerConfig().apiKey),
 
+  /** Resumen accionable de la red; fallback local si Groq no responde. */
   analizarRed: async (ctx: ContextoOperativo): Promise<ResultadoGroq> => {
     const fallback = analisisRespaldoRed(ctx);
 
@@ -154,6 +164,7 @@ export const ServicioGroq = {
     }
   },
 
+  /** Feedback al ciudadano tras crear un reporte. */
   evaluarReporte: async (
     categoria: string,
     descripcion: string,

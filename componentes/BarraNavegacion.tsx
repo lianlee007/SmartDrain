@@ -1,3 +1,7 @@
+/**
+ * Barra de navegación principal de SmartDrain.
+ * Enlaces de rutas, estado de sesión y menú responsive para móvil.
+ */
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Droplets, Menu, X, LayoutGrid, FilePlus, Map, Users, LogIn, UserPlus } from 'lucide-react';
@@ -8,6 +12,7 @@ export const BarraNavegacion = () => {
   const location = useLocation();
   const [menuAbierto, setMenuAbierto] = React.useState(false);
 
+  // Rutas públicas visibles en escritorio y en el drawer móvil
   const navLinks = [
     { nombre: 'Inicio', ruta: '/', icono: Map },
     { nombre: 'Dashboard', ruta: '/panel', icono: LayoutGrid },
@@ -21,6 +26,7 @@ export const BarraNavegacion = () => {
     <nav className="nav-bar sticky top-0 z-[100] w-full">
       <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
         <div className="flex items-center gap-10">
+          {/* Logo y marca */}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 transition-transform group-hover:scale-105">
               <Droplets className="h-6 w-6 text-slate-950" />
@@ -28,6 +34,7 @@ export const BarraNavegacion = () => {
             <span className="text-xl font-bold tracking-tight text-white">SmartDrain</span>
           </Link>
 
+          {/* Navegación horizontal (solo pantallas grandes) */}
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
@@ -46,6 +53,7 @@ export const BarraNavegacion = () => {
           </div>
         </div>
 
+        {/* Zona derecha: perfil/sesión o acceso, más botón hamburguesa */}
         <div className="flex items-center gap-3">
           {usuario ? (
             <>
@@ -90,6 +98,7 @@ export const BarraNavegacion = () => {
             </div>
           )}
 
+          {/* Alternar menú desplegable en viewports pequeños */}
           <button
             onClick={() => setMenuAbierto(!menuAbierto)}
             className="lg:hidden p-2 text-slate-300"
@@ -99,6 +108,7 @@ export const BarraNavegacion = () => {
         </div>
       </div>
 
+      {/* Panel móvil: mismos enlaces + auth según estado de usuario */}
       {menuAbierto && (
         <div className="lg:hidden nav-bar border-t border-slate-700 animate-in slide-in-from-top-4">
           <div className="px-6 py-8 space-y-4">

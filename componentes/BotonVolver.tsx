@@ -1,3 +1,7 @@
+/**
+ * Botón de retroceso reutilizable.
+ * Prioriza el historial del navegador; si no hay, vuelve a la ruta de origen o al inicio.
+ */
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
@@ -9,8 +13,10 @@ type Props = {
 export function BotonVolver({ etiqueta = 'Volver', className = '' }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
+  // Ruta guardada al redirigir (p. ej. desde login con state.from)
   const rutaOrigen = (location.state as { from?: { pathname: string } } | null)?.from?.pathname;
 
+  // history.back si hay historial; si no, ruta de origen o home
   const volver = () => {
     if (window.history.length > 1) {
       navigate(-1);

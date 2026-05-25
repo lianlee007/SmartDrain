@@ -1,3 +1,8 @@
+/**
+ * Página de registro de nuevos usuarios ciudadanos.
+ * Crea la cuenta vía contexto de auth y redirige igual que el login
+ * a la ruta que el usuario intentaba alcanzar.
+ */
 import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { UserPlus, Droplets, Users, Activity, Sparkles, ArrowRight } from 'lucide-react';
@@ -7,6 +12,7 @@ import { motion } from 'motion/react';
 import { BotonVolver } from '../componentes/BotonVolver';
 import { CampoContrasena } from '../componentes/CampoContrasena';
 
+/** Tarjetas informativas del panel lateral de registro */
 const destacados = [
   { icono: Users, titulo: 'Comunidad', desc: 'Únete a otros ciudadanos reportando incidentes' },
   { icono: Activity, titulo: 'Tiempo real', desc: 'Tus alertas llegan al panel operativo al instante' },
@@ -24,6 +30,7 @@ export default function Registro() {
   const location = useLocation();
   const destino = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/reportar';
 
+  /** Registra al usuario y navega al destino post-autenticación */
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');

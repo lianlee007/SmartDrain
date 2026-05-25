@@ -1,3 +1,7 @@
+/**
+ * Tipos de variables de entorno expuestas por Vite al frontend.
+ * VITE_* se inyectan en build; GROQ_* son alias opcionales en desarrollo.
+ */
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {

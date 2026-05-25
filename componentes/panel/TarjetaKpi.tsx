@@ -1,3 +1,7 @@
+/**
+ * Tarjeta compacta de indicador (KPI) para el panel de control.
+ * Muestra icono, valor principal, subtítulo y color de acento opcional.
+ */
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 
@@ -10,6 +14,7 @@ interface Props {
   acento?: 'emerald' | 'orange' | 'red' | 'blue' | 'slate';
 }
 
+// Clases Tailwind por variante de color del borde y fondo
 const acentos = {
   emerald: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
   orange: 'text-orange-600 dark:text-orange-400 bg-orange-500/10 border-orange-500/20',

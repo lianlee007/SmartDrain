@@ -1,3 +1,8 @@
+/**
+ * Página de inicio de sesión para ciudadanos.
+ * Formulario de correo/contraseña con opción "recordar usuario"
+ * y redirección a la ruta protegida que intentaban visitar.
+ */
 import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { LogIn, Droplets, ShieldCheck, MapPin, Camera, ArrowRight } from 'lucide-react';
@@ -7,6 +12,7 @@ import { motion } from 'motion/react';
 import { BotonVolver } from '../componentes/BotonVolver';
 import { CampoContrasena } from '../componentes/CampoContrasena';
 
+/** Mensajes de valor mostrados en el panel lateral (solo escritorio) */
 const beneficios = [
   { icono: Camera, texto: 'Reporta con foto y ubicación GPS' },
   { icono: MapPin, texto: 'Incidentes georreferenciados en Popayán' },
@@ -21,8 +27,10 @@ export default function Acceso() {
   const { iniciarSesion } = usarAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  // Ruta a la que volver tras login (p. ej. /reportar si venía de una ruta privada)
   const destino = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/reportar';
 
+  /** Envía credenciales al contexto de auth y navega al destino guardado */
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');

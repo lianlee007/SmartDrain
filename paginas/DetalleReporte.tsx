@@ -1,3 +1,8 @@
+/**
+ * Vista de detalle de un reporte ciudadano por ID en la URL.
+ * Muestra evidencia fotográfica, metadatos, mapa de ubicación
+ * y estados de carga o "no encontrado".
+ */
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
@@ -18,6 +23,7 @@ import { BotonVolver } from '../componentes/BotonVolver';
 import { urlCapaMapa } from '../utilidades/estilosTema';
 import { usarAuth } from '../contextos/ContextoAuth';
 
+/** Icono del pin en el mapa de ubicación del reporte */
 const marcadorIcono = new Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -38,6 +44,7 @@ const colorEstado: Record<Reporte['estado'], string> = {
   Solucionado: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
 };
 
+/** Fila reutilizable de etiqueta + valor en el panel de información */
 function FilaDetalle({
   icono: Icono,
   etiqueta,
@@ -66,6 +73,7 @@ export default function DetalleReporte() {
   const [reporte, setReporte] = useState<Reporte | null>(null);
   const [listo, setListo] = useState(false);
 
+  // Busca el reporte por id de ruta al montar o cambiar el parámetro
   useEffect(() => {
     if (!id) {
       setListo(true);

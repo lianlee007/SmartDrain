@@ -1,3 +1,8 @@
+/**
+ * Perfil del usuario autenticado y historial de sus reportes.
+ * Muestra estadísticas agregadas (severidad, estado, categorías)
+ * y la galería personal de incidentes enviados.
+ */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -32,6 +37,7 @@ export default function Perfil() {
   const { usuario } = usarAuth();
   const [reportes, setReportes] = useState<Reporte[]>([]);
 
+  // Carga solo los reportes creados por el usuario en sesión
   useEffect(() => {
     if (!usuario) return;
     ServicioBdLocal.obtenerReportesPorAutor(usuario.id)
@@ -39,6 +45,7 @@ export default function Perfil() {
       .catch(console.error);
   }, [usuario]);
 
+  /** Métricas derivadas del listado personal de reportes */
   const estadisticas = useMemo(() => {
     const porSeveridad = { Leve: 0, Moderado: 0, Grave: 0 };
     const porEstado = { Pendiente: 0, Revisado: 0, Solucionado: 0 };
@@ -70,6 +77,7 @@ export default function Perfil() {
 
   if (!usuario) return null;
 
+  /** KPIs mostrados en la cuadrícula superior del perfil */
   const tarjetasResumen = [
     {
       titulo: 'Total reportes',

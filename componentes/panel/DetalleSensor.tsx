@@ -1,3 +1,7 @@
+/**
+ * Panel lateral o modal con el detalle de un nodo IoT.
+ * Métricas en vivo, recomendación operativa, gráfica de tendencia e historial de mantenimiento.
+ */
 import React from 'react';
 import {
   X,
@@ -34,6 +38,7 @@ interface Props {
 
 export const DetalleSensor: React.FC<Props> = ({ sensor, onCerrar }) => {
   const info = INFO_ESTADO_SENSOR[sensor.estado];
+  // Serie sintética para la gráfica según el nivel actual del sensor
   const historial = React.useMemo(
     () => generarHistorialSensor(sensor.nivelAgua),
     [sensor.id, sensor.nivelAgua]
@@ -41,6 +46,7 @@ export const DetalleSensor: React.FC<Props> = ({ sensor, onCerrar }) => {
 
   return (
     <div className={`card-premium rounded-3xl p-6 border-l-4 ${info.borde} flex flex-col gap-4`}>
+      {/* Cabecera: identificación, estado y cierre */}
       <div className="flex justify-between items-start gap-3">
         <div>
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
@@ -69,6 +75,7 @@ export const DetalleSensor: React.FC<Props> = ({ sensor, onCerrar }) => {
         {info.descripcion}
       </p>
 
+      {/* Cuadrícula de métricas principales del nodo */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <MetricaMini
           icono={Gauge}
@@ -96,6 +103,7 @@ export const DetalleSensor: React.FC<Props> = ({ sensor, onCerrar }) => {
         />
       </div>
 
+      {/* Barra de progreso del nivel de agua en el colector */}
       <div>
         <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500 mb-1">
           <span>Llenado del colector</span>
@@ -109,6 +117,7 @@ export const DetalleSensor: React.FC<Props> = ({ sensor, onCerrar }) => {
         </div>
       </div>
 
+      {/* Acción sugerida según estado y lecturas del sensor */}
       <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
         <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
         <div>
@@ -121,6 +130,7 @@ export const DetalleSensor: React.FC<Props> = ({ sensor, onCerrar }) => {
         </div>
       </div>
 
+      {/* Gráfica de área con historial simulado de nivel */}
       <div className="h-[140px]">
         <p className="text-[10px] font-black uppercase text-slate-500 mb-2 tracking-widest">
           Tendencia de nivel (últimas horas)
@@ -144,6 +154,7 @@ export const DetalleSensor: React.FC<Props> = ({ sensor, onCerrar }) => {
         </ResponsiveContainer>
       </div>
 
+      {/* Listado opcional de intervenciones registradas en el nodo */}
       {sensor.historialMantenimiento && sensor.historialMantenimiento.length > 0 && (
         <div>
           <p className="text-[10px] font-black uppercase text-slate-500 mb-2 flex items-center gap-1">
@@ -177,6 +188,7 @@ export const DetalleSensor: React.FC<Props> = ({ sensor, onCerrar }) => {
   );
 };
 
+/** Celda pequeña con icono, etiqueta y valor; tooltip con la explicación técnica */
 const MetricaMini: React.FC<{
   icono: React.ComponentType<{ className?: string }>;
   etiqueta: string;

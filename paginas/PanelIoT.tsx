@@ -1,4 +1,9 @@
-﻿import React, { useEffect, useState, useMemo } from 'react';
+﻿/**
+ * Panel operativo IoT: centro de control de la red de sensores en Popayán.
+ * Integra mapa en vivo, KPIs, clima, reportes ciudadanos, gráficas Recharts,
+ * modo tormenta y análisis IA; actualiza telemetría cada 15 segundos.
+ */
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   AreaChart,
   Area,
@@ -46,6 +51,7 @@ import {
 } from '../utilidades/metricasRed';
 import { urlCapaMapa, estiloTooltipGrafica, cursorGrafica } from '../utilidades/estilosTema';
 
+/** Marcador en el mapa para reportes ciudadanos (tono distinto a sensores) */
 const alertIcon = new Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -55,8 +61,10 @@ const alertIcon = new Icon({
   iconAnchor: [12, 41],
 });
 
+/** Intervalo de refresco automático de sensores en milisegundos */
 const INTERVALO_LECTURA_MS = 15_000;
 
+/** Definiciones de métricas mostradas en el glosario lateral */
 const GLOSARIO = [
   {
     termino: 'Nivel de agua (%)',
@@ -89,16 +97,20 @@ export default function PanelIoT() {
   const modoTormentaRef = React.useRef(modoTormenta);
   modoTormentaRef.current = modoTormenta;
 
+  /** KPIs agregados: niveles, flujos, conteos por estado */
   const metricas = useMemo(() => calcularMetricasRed(sensores), [sensores]);
+  /** Nodos en Alerta o Crítico para la cola de despacho */
   const sensoresCriticos = useMemo(
     () => sensores.filter((s) => s.estado === 'Critico' || s.estado === 'Alerta'),
     [sensores]
   );
 
+  // Mantiene la ref alineada con el sensor abierto en la ficha técnica
   React.useEffect(() => {
     sensorSeleccionadoRef.current = sensorSeleccionado;
   }, [sensorSeleccionado]);
 
+  /** Actualiza la lista de sensores y refresca el detalle si sigue seleccionado */
   const aplicarSensores = (newSens: SensorIoT[]) => {
     setSensores(newSens);
     setUltimaSync(new Date());
@@ -109,6 +121,7 @@ export default function PanelIoT() {
     }
   };
 
+  /** Consulta telemetría al backend; tormenta simula condiciones de lluvia intensa */
   const refrescarSensores = React.useCallback(async (tormenta: boolean, silencioso = false) => {
     if (!silencioso) setActualizandoSensores(true);
     try {
@@ -121,12 +134,14 @@ export default function PanelIoT() {
     }
   }, []);
 
+  /** Activa/desactiva el escenario meteorológico y recarga sensores */
   const alternarModoTormenta = () => {
     const activo = !modoTormenta;
     setModoTormenta(activo);
     refrescarSensores(activo);
   };
 
+  /** Carga inicial: clima, sensores y reportes ciudadanos */
   const cargarDatos = async () => {
     try {
       const clim = await ServicioClima.obtenerClimaPopayan();
@@ -142,6 +157,7 @@ export default function PanelIoT() {
     }
   };
 
+  // Montaje: datos iniciales + polling periódico de sensores
   useEffect(() => {
     cargarDatos();
     const interval = setInterval(() => {

@@ -1,8 +1,13 @@
+/**
+ * Tarjeta de análisis operativo con IA (Groq).
+ * Consulta la red de sensores, clima y reportes; limita peticiones por firma de estado.
+ */
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Sparkles, Activity, ShieldAlert, Zap, RefreshCw } from 'lucide-react';
 import { DatosClima, Reporte, SensorIoT } from '../tipos';
 import { ServicioGroq } from '../servicios/ServicioGroq';
 
+// Tiempo mínimo entre re-análisis automáticos al cambiar la red
 const INTERVALO_MINIMO_MS = 120_000;
 
 interface Props {
@@ -12,6 +17,7 @@ interface Props {
   modoTormenta?: boolean;
 }
 
+/** Resume el estado de la red para detectar cambios sin repetir llamadas idénticas */
 function firmaEstable(
   sensores: SensorIoT[],
   reportes: Reporte[],
@@ -42,6 +48,7 @@ export const AnalisisIA: React.FC<Props> = ({
   const ultimaFirma = useRef('');
   const insightRef = useRef('');
 
+  // Paquete enviado al servicio de IA en cada análisis
   const contexto = useMemo(
     () => ({ sensores, clima, reportes, modoTormenta }),
     [sensores, clima, reportes, modoTormenta]
@@ -52,6 +59,7 @@ export const AnalisisIA: React.FC<Props> = ({
     [sensores, reportes, modoTormenta, clima]
   );
 
+  // Petición a Groq; ignora respuestas obsoletas si hubo otra petición posterior
   const ejecutarAnalisis = useCallback(async () => {
     const idPeticion = ++ultimaPeticion.current;
     const tieneTexto = Boolean(insightRef.current);
@@ -78,11 +86,13 @@ export const AnalisisIA: React.FC<Props> = ({
     }
   }, [contexto, firma]);
 
+  // Carga inicial al montar el componente
   useEffect(() => {
     ejecutarAnalisis();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Re-análisis cuando cambia la firma, respetando el intervalo mínimo
   useEffect(() => {
     if (firma === ultimaFirma.current) return;
 
@@ -94,6 +104,7 @@ export const AnalisisIA: React.FC<Props> = ({
     ejecutarAnalisis();
   }, [firma, ejecutarAnalisis]);
 
+  // Contadores mostrados en el pie de la tarjeta
   const criticos = sensores.filter((s) => s.estado === 'Critico').length;
   const alertas = sensores.filter((s) => s.estado === 'Alerta').length;
 
@@ -126,6 +137,7 @@ export const AnalisisIA: React.FC<Props> = ({
         </button>
       </div>
 
+      {/* Cuerpo: skeleton, texto del insight o métricas resumidas */}
       <div className="relative min-h-[5.5rem]">
         {cargando && !insight ? (
           <div className="flex items-center gap-2 py-4">

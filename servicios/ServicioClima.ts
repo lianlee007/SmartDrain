@@ -1,3 +1,7 @@
+/**
+ * Datos meteorológicos actuales para Popayán vía Open-Meteo.
+ * Si la API falla, devuelve valores por defecto para no bloquear el panel.
+ */
 import { DatosClima } from '../tipos';
 
 export const ServicioClima = {

@@ -1,3 +1,8 @@
+/**
+ * Formulario protegido para crear un reporte ciudadano.
+ * Flujo en tres pasos: entidad, categoría y detalles con foto, mapa Leaflet
+ * y evaluación operativa vía IA (Groq) tras el envío.
+ */
 import React, { useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import { Icon } from 'leaflet';
@@ -24,6 +29,7 @@ import { urlCapaMapa } from '../utilidades/estilosTema';
 import { ServicioGroq } from '../servicios/ServicioGroq';
 import { comprimirImagen } from '../utilidades/comprimirImagen';
 
+/** Icono del marcador en el mapa interactivo */
 const customIcon = new Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -34,6 +40,7 @@ const customIcon = new Icon({
 
 type Categoria = 'Obstrucción' | 'Mal Olor' | 'Tapa Dañada' | 'Desbordamiento';
 
+/** Tipos de incidente seleccionables en el paso 2 */
 const CATEGORIAS: { id: Categoria; icono: React.ComponentType<{ className?: string }>; color: string; desc: string }[] = [
   { id: 'Obstrucción', icono: Trash2, color: 'text-orange-500', desc: 'Basura o sedimentos' },
   { id: 'Mal Olor', icono: Droplets, color: 'text-purple-500', desc: 'Gases o estancamiento' },
@@ -41,6 +48,7 @@ const CATEGORIAS: { id: Categoria; icono: React.ComponentType<{ className?: stri
   { id: 'Desbordamiento', icono: Waves, color: 'text-blue-500', desc: 'Exceso de agua' },
 ];
 
+/** Captura clics en el mapa para fijar lat/lng del incidente */
 function MapClickHandler({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
   useMapEvents({
     click(e) {
@@ -50,6 +58,7 @@ function MapClickHandler({ onLocationSelect }: { onLocationSelect: (lat: number,
   return null;
 }
 
+/** Recentra la vista del mapa cuando cambia la posición del marcador */
 function CentrarMapa({ lat, lng }: { lat: number; lng: number }) {
   const map = useMap();
   React.useEffect(() => {
@@ -58,6 +67,7 @@ function CentrarMapa({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
+/** Estilos visuales según si el paso del wizard está activo, pendiente o completado */
 function clasePaso(numero: number, pasoActual: number): string {
   if (pasoActual === numero) return 'opacity-100 ring-2 ring-primary-500/20';
   if (pasoActual < numero) return 'paso-bloqueado';
@@ -65,7 +75,7 @@ function clasePaso(numero: number, pasoActual: number): string {
 }
 
 export default function NuevoReporte() {
-  const { usuario } = usarAuth();
+  const { usuario } = usarAuth(); // Ruta privada: autor del reporte
   const navigate = useNavigate();
   const inputFoto = useRef<HTMLInputElement>(null);
   const [posicion, setPosicion] = useState({ lat: 2.4418, lng: -76.6063 });
@@ -87,17 +97,20 @@ export default function NuevoReporte() {
     ? ENTIDADES_DISPONIBLES.find((e) => e.id === entidad)
     : undefined;
 
+  /** Paso 1: elige entidad responsable y avanza el wizard si corresponde */
   const seleccionarEntidad = (id: EntidadReporteId) => {
     setEntidad(id);
     setErrorEntidad('');
     if (paso < 2) setPaso(2);
   };
 
+  /** Paso 2: define el tipo de incidente */
   const seleccionarCategoria = (id: Categoria) => {
     setCategoria(id);
     if (paso < 3) setPaso(3);
   };
 
+  /** Obtiene coordenadas GPS del dispositivo y las aplica al mapa */
   const usarUbicacionActual = () => {
     if (!navigator.geolocation) {
       setGeoEstado('error');
@@ -126,6 +139,7 @@ export default function NuevoReporte() {
     );
   };
 
+  /** Comprime la imagen seleccionada y guarda la vista previa en base64 */
   const manejarFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const archivo = e.target.files?.[0];
     if (!archivo) return;
@@ -146,6 +160,7 @@ export default function NuevoReporte() {
     if (inputFoto.current) inputFoto.current.value = '';
   };
 
+  /** Persiste el reporte, muestra confirmación y solicita evaluación IA antes de redirigir */
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!entidad) {
@@ -178,6 +193,7 @@ export default function NuevoReporte() {
     setTimeout(() => navigate('/reportes-ciudadanos'), 4000);
   };
 
+  // Pantalla de éxito con recomendación de Groq y redirección automática a la galería
   if (enviado) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center">

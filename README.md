@@ -107,6 +107,17 @@ SmartDrain/
 - Open-Meteo (clima)
 - Groq API (análisis IA, opcional)
 
+## Inicio rápido
+
+En PowerShell, cada vez que vayas a usar el proyecto:
+
+```powershell
+Start-Service MySQL80
+npm run dev:all
+```
+
+Abre [http://localhost:3000](http://localhost:3000).
+
 ## Licencia
 
 Proyecto académico — uso educativo.

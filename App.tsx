@@ -1,3 +1,8 @@
+/**
+ * Componente raíz de SmartDrain: enrutamiento, autenticación y layout global.
+ * Envuelve la app con el proveedor de sesión, define rutas públicas/privadas
+ * y muestra la barra de navegación en todas las pantallas.
+ */
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ProveedorAuth, usarAuth } from './contextos/ContextoAuth';
@@ -13,6 +18,7 @@ import ReportesCiudadanos from './paginas/ReportesCiudadanos';
 import DetalleReporte from './paginas/DetalleReporte';
 import Perfil from './paginas/Perfil';
 
+/** Pantalla de espera mientras se restaura la sesión del usuario */
 const PantallaCarga = () => (
   <div className="min-h-screen flex flex-col items-center justify-center gap-4">
     <Activity className="h-10 w-10 text-emerald-500 animate-spin" />
@@ -20,6 +26,7 @@ const PantallaCarga = () => (
   </div>
 );
 
+/** Redirige a /acceso si no hay sesión; guarda la ruta de origen para volver tras login */
 const RutaPrivada = ({ children }: { children: React.ReactNode }) => {
   const { usuario, cargando } = usarAuth();
   const location = useLocation();
@@ -28,6 +35,7 @@ const RutaPrivada = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+/** Impide acceder a login/registro si el usuario ya está autenticado */
 const RutaPublica = ({ children }: { children: React.ReactNode }) => {
   const { usuario, cargando } = usarAuth();
   if (cargando) return <PantallaCarga />;
@@ -35,6 +43,7 @@ const RutaPublica = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+/** Layout principal: barra de navegación y definición de todas las rutas */
 const LayoutApp = () => {
   const { cargando } = usarAuth();
 
@@ -60,6 +69,7 @@ const LayoutApp = () => {
   );
 };
 
+/** Raíz de la aplicación: proveedor de auth + router */
 export default function App() {
   return (
     <ProveedorAuth>

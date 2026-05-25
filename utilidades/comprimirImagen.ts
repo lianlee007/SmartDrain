@@ -1,6 +1,14 @@
+/**
+ * Redimensiona y comprime imágenes del cliente antes de subirlas.
+ * Convierte a JPEG en base64 para adjuntar en reportes sin exceder límites del API.
+ */
 const MAX_ANCHO = 960;
 const CALIDAD = 0.72;
 
+/**
+ * Lee un File, escala al ancho máximo y devuelve data URL JPEG.
+ * Rechaza archivos no imagen o mayores a 8 MB.
+ */
 export function comprimirImagen(archivo: File): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!archivo.type.startsWith('image/')) {

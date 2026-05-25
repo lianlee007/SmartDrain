@@ -1,3 +1,8 @@
+/**
+ * Galería pública de reportes ciudadanos.
+ * Lista incidentes con foto y ubicación, resumen estadístico opcional
+ * y enlace al detalle de cada reporte.
+ */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Camera, FilePlus, AlertTriangle, Clock, User, BarChart3, Eye } from 'lucide-react';
@@ -5,6 +10,7 @@ import { ServicioBdLocal } from '../servicios/ServicioBdLocal';
 import { nombreEntidadReporte, Reporte } from '../tipos';
 import { usarAuth } from '../contextos/ContextoAuth';
 
+/** Clases Tailwind por nivel de severidad en las tarjetas */
 const colorSeveridad: Record<Reporte['severidad'], string> = {
   Leve: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
   Moderado: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
@@ -16,6 +22,7 @@ export default function ReportesCiudadanos() {
   const [reportes, setReportes] = useState<Reporte[]>([]);
   const [mostrarResumen, setMostrarResumen] = useState(false);
 
+  /** Agregados para el panel de resumen (totales, severidad, estado) */
   const resumenReportes = useMemo(() => {
     const total = reportes.length;
     const conFoto = reportes.filter((r) => r.fotoUrl).length;
@@ -56,6 +63,7 @@ export default function ReportesCiudadanos() {
     };
   }, [reportes]);
 
+  // Carga inicial de todos los reportes desde almacenamiento local/API
   useEffect(() => {
     ServicioBdLocal.obtenerReportes()
       .then((lista) => setReportes(lista))

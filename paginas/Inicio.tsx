@@ -1,3 +1,8 @@
+/**
+ * Página de inicio (landing) de SmartDrain.
+ * Presenta la propuesta de valor, el flujo de reporte en tres pasos,
+ * tipos de incidentes y enlaces al panel IoT y al formulario de reporte.
+ */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -17,6 +22,7 @@ import {
 import { motion } from 'motion/react';
 import { usarAuth } from '../contextos/ContextoAuth';
 
+/** Pasos del flujo ciudadano mostrados en la sección "Cómo funciona" */
 const pasos = [
   {
     num: '01',
@@ -38,6 +44,7 @@ const pasos = [
   },
 ];
 
+/** Categorías de incidente enlazadas al formulario de reporte */
 const tiposReporte = [
   { titulo: 'Obstrucción', desc: 'Basura o sedimentos', color: 'border-orange-500/40 bg-orange-500/10 text-orange-400' },
   { titulo: 'Mal olor', desc: 'Gases o estancamiento', color: 'border-purple-500/40 bg-purple-500/10 text-purple-400' },
@@ -46,7 +53,7 @@ const tiposReporte = [
 ];
 
 export default function Inicio() {
-  const { usuario } = usarAuth();
+  const { usuario } = usarAuth(); // Saludo personalizado si hay sesión activa
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-5rem)] overflow-x-hidden">

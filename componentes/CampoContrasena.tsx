@@ -1,3 +1,7 @@
+/**
+ * Campo de contraseña con alternancia mostrar/ocultar.
+ * Reutiliza las props nativas de input excepto type (se controla internamente).
+ */
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -11,11 +15,13 @@ export function CampoContrasena({ className = '', ...props }: CampoContrasenaPro
 
   return (
     <div className="relative">
+      {/* type alterna entre password y text según visible */}
       <input
         {...props}
         type={visible ? 'text' : 'password'}
         className={`w-full input-field rounded-xl px-4 py-3 pr-12 focus:ring-2 focus:ring-emerald-500/50 focus:outline-none transition-shadow ${className}`}
       />
+      {/* Control de accesibilidad para revelar la contraseña */}
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
